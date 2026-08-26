@@ -175,8 +175,10 @@ The application listens to the native `window.addEventListener('storage', ...)` 
 
 ---
 
-## 👤 Author & License
+## 👤 Author & Repository
 
 - **Project**: ParkEase — Parking Management Web Application
+- **Repository**: [https://github.com/S1Info-tech/parking-management-system](https://github.com/S1Info-tech/parking-management-system)
+- **Live Demo (GitHub Pages)**: [https://s1info-tech.github.io/parking-management-system/](https://s1info-tech.github.io/parking-management-system/)
 - **Stack**: HTML5 • CSS3 • Vanilla JavaScript • LocalStorage
 - **License**: MIT License — Free to use for college projects and educational portfolios.
