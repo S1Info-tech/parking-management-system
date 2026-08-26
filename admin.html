@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ParkEase Admin Dashboard for Parking Slot and Vehicle Management.">
+    <title>Admin Dashboard | ParkEase</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ====================================================================
+         LOGIN SCREEN (Shown when admin is logged out)
+         ==================================================================== -->
+    <div id="admin-login-view" class="login-wrapper" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">🔐</div>
+                <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">Admin Portal Login</h1>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Sign in to access system controls & slot management</p>
+            </div>
+
+            <!-- Demo Credentials Banner -->
+            <div class="demo-credentials-box">
+                <div style="font-weight: 700; margin-bottom: 2px;">🔑 Demo Login Credentials:</div>
+                <div>Username: <strong>admin</strong></div>
+                <div>Password: <strong>admin123</strong></div>
+            </div>
+
+            <form id="admin-login-form" novalidate>
+                <div class="form-group">
+                    <label for="admin-username" class="form-label">Username</label>
+                    <input type="text" id="admin-username" class="form-control" placeholder="Enter admin username" value="admin" required>
+                    <div class="form-text-error" id="error-admin-username">Please enter username.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-password" class="form-label">Password</label>
+                    <input type="password" id="admin-password" class="form-control" placeholder="Enter admin password" value="admin123" required>
+                    <div class="form-text-error" id="error-admin-password">Please enter password.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
+                    Sign In to Dashboard
+                </button>
+            </form>
+
+            <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                <a href="index.html" class="btn btn-sm btn-outline" style="width: 100%;">
+                    ⬅️ Return to Public User Portal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         ADMIN DASHBOARD VIEW (Shown when logged in)
+         ==================================================================== -->
+    <div id="admin-dashboard-view" class="admin-layout" style="display: none;">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <div class="brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">🅿️</div>
+                <div class="admin-brand">ParkEase Admin</div>
+            </div>
+
+            <ul class="admin-nav">
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link active" data-admin-tab="overview">
+                        <span class="admin-nav-icon">📊</span>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="slots">
+                        <span class="admin-nav-icon">🅿️</span>
+                        <span>Slot Management</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="vehicles">
+                        <span class="admin-nav-icon">🚗</span>
+                        <span>Parked Vehicles</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="history">
+                        <span class="admin-nav-icon">📜</span>
+                        <span>Parking History</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="settings">
+                        <span class="admin-nav-icon">⚙️</span>
+                        <span>System Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="admin-sidebar-footer">
+                <a href="index.html" class="btn btn-outline btn-sm" style="width: 100%; color: #ffffff; border-color: rgba(255, 255, 255, 0.2); margin-bottom: 8px;">
+                    🌐 Public User Portal
+                </a>
+                <button class="btn btn-danger btn-sm" id="admin-logout-btn" style="width: 100%;">
+                    🚪 Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="admin-main">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="menu-toggle" id="adminMenuToggle" aria-label="Toggle Sidebar">☰</button>
+                    <h2 class="admin-page-title" id="admin-current-page-title">Dashboard Overview</h2>
+                </div>
+
+                <div class="admin-user-info">
+                    <div class="admin-avatar">AD</div>
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 700;">Administrator</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Super Admin</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Body -->
+            <div class="admin-body">
+
+                <!-- ================================================================
+                     TAB 1: OVERVIEW & STATS
+                     ================================================================ -->
+                <div id="tab-overview" class="admin-tab-content active">
+                    <!-- Metric Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Total Parking Slots</div>
+                                <div class="stat-value" id="adm-stat-total">0</div>
+                            </div>
+                            <div class="stat-icon blue">🅿️</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Available Slots</div>
+                                <div class="stat-value" id="adm-stat-avail" style="color: var(--success);">0</div>
+                            </div>
+                            <div class="stat-icon green">🟢</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Occupied Slots</div>
+                                <div class="stat-value" id="adm-stat-occ" style="color: var(--danger);">0</div>
+                            </div>
+                            <div class="stat-icon red">🔴</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Disabled / Maintenance</div>
+                                <div class="stat-value" id="adm-stat-dis">0</div>
+                            </div>
+                            <div class="stat-icon amber">🛠️</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Grid Quick View -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Live Parking Bay Map</h3>
+                                <p class="section-subtitle">Real-time occupancy status across all managed bays.</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="openAddSlotModal()">
+                                ➕ Add New Slot
+                            </button>
+                        </div>
+                        <div class="parking-grid" id="admin-overview-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 2: SLOT MANAGEMENT
+                     ================================================================ -->
+                <div id="tab-slots" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Slot Management</h2>
+                            <p class="section-subtitle">Add new bays, change operational status, or delete existing slots.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openAddSlotModal()">
+                            ➕ Add New Parking Slot
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="adm-slot-search" placeholder="Search by slot ID, floor, or status...">
+                        </div>
+                        <select id="adm-slot-filter-type" class="filter-select" aria-label="Filter by vehicle type">
+                            <option value="ALL">All Vehicle Types</option>
+                            <option value="4-Wheeler">4-Wheeler</option>
+                            <option value="2-Wheeler">2-Wheeler</option>
+                            <option value="Heavy Vehicle">Heavy Vehicle</option>
+                        </select>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Slot ID</th>
+                                        <th>Floor / Zone</th>
+                                        <th>Supported Type</th>
+                                        <th>Current Status</th>
+                                        <th>Occupying Vehicle</th>
+                                        <th style="text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adm-slots-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 3: ACTIVE VEHICLES MANAGEMENT
+                     ================================================================ -->
+                <div id="tab-vehicles" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Active Parked Vehicles</h2>
+                            <p class="section-subtitle">Oversee all parked vehicles and execute administrative releases.</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="adm-vehicle-search" placeholder="Search by vehicle number, owner, or slot ID...">
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Slot ID</th>
+                                        <th>Vehicle Number</th>
+                                        <th>Owner Name</th>
+                                        <th>Vehicle Type</th>
+                                        <th>Floor</th>
+                                        <th>Parked Since</th>
+                                        <th style="text-align: right;">Admin Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adm-vehicles-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="adm-no-vehicles-msg" class="empty-state" style="display: none;">
+                            <div class="empty-state-icon">🅿️</div>
+                            <h3 class="empty-state-title">No Vehicles Currently Parked</h3>
+                            <p class="empty-state-text">All parking bays are currently available.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 4: PARKING HISTORY & AUDIT LOG
+                     ================================================================ -->
+                <div id="tab-history" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Parking History & Logs</h2>
+                            <p class="section-subtitle">Detailed record of all historical parking sessions.</p>
+                        </div>
+                        <button class="btn btn-outline btn-sm" id="clear-history-btn" style="color: var(--danger); border-color: var(--danger-border);">
+                            🗑️ Clear All History
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="adm-history-search" placeholder="Search logs by vehicle, owner, or slot...">
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Log ID</th>
+                                        <th>Vehicle Number</th>
+                                        <th>Owner Name</th>
+                                        <th>Vehicle Type</th>
+                                        <th>Slot</th>
+                                        <th>In Time</th>
+                                        <th>Out Time</th>
+                                        <th>Duration</th>
+                                        <th>Released By</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adm-history-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="adm-no-history-msg" class="empty-state" style="display: none;">
+                            <div class="empty-state-icon">📜</div>
+                            <h3 class="empty-state-title">No History Records Found</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 5: SYSTEM SETTINGS & DEMO RESET
+                     ================================================================ -->
+                <div id="tab-settings" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">System Settings & Data Tools</h2>
+                            <p class="section-subtitle">Manage demo data, reset persistence, or adjust preferences.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom: 8px;">🔄 Reset Demo Dataset</h3>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px; line-height: 1.6;">
+                            Reset all parking slots, active parked vehicles, and historical logs back to the initial factory demo state (P-01 to P-12).
+                        </p>
+                        <button class="btn btn-danger" id="reset-system-data-btn">
+                            ⚠️ Restore Factory Sample Data
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom: 8px;">ℹ️ System Information</h3>
+                        <div class="detail-grid" style="margin-top: 15px;">
+                            <div class="detail-item">
+                                <div class="detail-label">Persistence Engine</div>
+                                <div class="detail-value">Browser LocalStorage API</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Technology Architecture</div>
+                                <div class="detail-value">HTML5 / CSS3 / Vanilla JS (ES6)</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Backend Dependency</div>
+                                <div class="detail-value" style="color: var(--success);">Zero (Static SPA)</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Deployment Compatibility</div>
+                                <div class="detail-value">GitHub Pages Ready</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         ADD NEW SLOT MODAL
+         ==================================================================== -->
+    <div class="modal-backdrop" id="addSlotModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">➕ Add New Parking Slot</h3>
+                <button class="modal-close" onclick="closeModal('addSlotModal')">&times;</button>
+            </div>
+            <form id="add-slot-form" novalidate>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new-slot-id" class="form-label">Slot Identifier *</label>
+                        <input type="text" id="new-slot-id" class="form-control" placeholder="e.g. P-13, B-01, VIP-01" required>
+                        <div class="form-text-error" id="error-new-slot-id">Please enter a unique slot identifier.</div>
+                        <div class="form-hint">Must be unique across the facility.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-slot-floor" class="form-label">Floor / Zone *</label>
+                        <select id="new-slot-floor" class="form-control" required>
+                            <option value="Ground Floor">Ground Floor</option>
+                            <option value="1st Floor">1st Floor</option>
+                            <option value="2nd Floor">2nd Floor</option>
+                            <option value="Basement">Basement</option>
+                            <option value="Outdoor Bay">Outdoor Bay</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-slot-type" class="form-label">Supported Vehicle Type *</label>
+                        <select id="new-slot-type" class="form-control" required>
+                            <option value="4-Wheeler">4-Wheeler (Car / SUV)</option>
+                            <option value="2-Wheeler">2-Wheeler (Bike / Scooter)</option>
+                            <option value="Heavy Vehicle">Heavy Vehicle (Bus / Truck)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-slot-status" class="form-label">Initial Status *</label>
+                        <select id="new-slot-status" class="form-control" required>
+                            <option value="available">Available (Active)</option>
+                            <option value="disabled">Disabled (Under Maintenance)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('addSlotModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Parking Slot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         CONFIRM ADMIN ACTION MODAL (Delete / Force Release)
+         ==================================================================== -->
+    <div class="modal-backdrop" id="adminConfirmModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title" id="adm-confirm-title">Confirm Action</h3>
+                <button class="modal-close" onclick="closeModal('adminConfirmModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="adm-confirm-message" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('adminConfirmModal')">Cancel</button>
+                <button class="btn btn-danger" id="adm-confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="adminToastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

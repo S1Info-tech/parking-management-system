@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Modern, responsive Parking Management System built with HTML5, CSS3, and Vanilla JavaScript.">
+    <title>ParkEase | Smart Parking Management System</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ====================================================================
+         NAVIGATION BAR
+         ==================================================================== -->
+    <header class="navbar">
+        <div class="container">
+            <a href="#home" class="brand" data-nav="home">
+                <div class="brand-icon">🅿️</div>
+                <span>ParkEase</span>
+            </a>
+
+            <!-- Mobile Hamburger Toggle -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+                ☰
+            </button>
+
+            <!-- Navigation Links -->
+            <ul class="nav-links" id="navLinks">
+                <li class="nav-item active"><a href="#home" data-nav="home">Home</a></li>
+                <li class="nav-item"><a href="#slots" data-nav="slots">Parking Slots</a></li>
+                <li class="nav-item"><a href="#park" data-nav="park">Park Vehicle</a></li>
+                <li class="nav-item"><a href="#active-vehicles" data-nav="active-vehicles">Active Vehicles</a></li>
+                <li class="nav-item"><a href="#history" data-nav="history">Parking History</a></li>
+                <li class="nav-item"><a href="#about" data-nav="about">About</a></li>
+                <li class="nav-item nav-btn">
+                    <a href="admin.html" class="btn btn-sm btn-outline">
+                        🔐 Admin Portal
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- ====================================================================
+         MAIN CONTENT AREA
+         ==================================================================== -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- ====================================================================
+                 SECTION 1: HOME / DASHBOARD
+                 ==================================================================== -->
+            <section id="section-home" class="section active">
+                <!-- Hero Banner -->
+                <div class="hero-banner">
+                    <div>
+                        <h1 class="hero-title">Smart & Real-Time Parking System</h1>
+                        <p class="hero-subtitle">Effortlessly find available parking slots, park your vehicle, track real-time occupancy, and generate parking receipts with zero hassle.</p>
+                        <div class="hero-actions">
+                            <button class="btn btn-lg hero-btn-light" onclick="navigateToSection('park')">
+                                🚗 Park a Vehicle Now
+                            </button>
+                            <button class="btn btn-lg hero-btn-ghost" onclick="navigateToSection('slots')">
+                                🗺️ View Visual Layout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Metrics Summary -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">Total Slots</div>
+                            <div class="stat-value" id="stat-total-slots">0</div>
+                        </div>
+                        <div class="stat-icon blue">🅿️</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">Available Slots</div>
+                            <div class="stat-value" id="stat-available-slots" style="color: var(--success);">0</div>
+                        </div>
+                        <div class="stat-icon green">🟢</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">Occupied Slots</div>
+                            <div class="stat-value" id="stat-occupied-slots" style="color: var(--danger);">0</div>
+                        </div>
+                        <div class="stat-icon red">🔴</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">Total Parked Vehicles</div>
+                            <div class="stat-value" id="stat-total-vehicles">0</div>
+                        </div>
+                        <div class="stat-icon amber">🚙</div>
+                    </div>
+                </div>
+
+                <!-- Quick Live Layout Preview -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Live Parking Bay Overview</h2>
+                            <p class="section-subtitle">Click on any slot to view full details, park, or release a vehicle.</p>
+                        </div>
+                        <div class="parking-legend">
+                            <div class="legend-item"><span class="legend-color available"></span> Available</div>
+                            <div class="legend-item"><span class="legend-color occupied"></span> Occupied</div>
+                            <div class="legend-item"><span class="legend-color disabled"></span> Disabled</div>
+                        </div>
+                    </div>
+
+                    <div class="parking-grid" id="home-slots-grid">
+                        <!-- Populated dynamically via JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SECTION 2: PARKING SLOTS & VISUAL LAYOUT
+                 ==================================================================== -->
+            <section id="section-slots" class="section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Parking Slots Directory</h1>
+                        <p class="section-subtitle">Browse, filter, and inspect parking spaces across all floors and zones.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="navigateToSection('park')">
+                        ➕ Park a Vehicle
+                    </button>
+                </div>
+
+                <!-- Filter & Search Controls -->
+                <div class="filter-bar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="slot-search-input" placeholder="Search by Slot ID (e.g. P-01, P-05)...">
+                    </div>
+
+                    <select id="slot-type-filter" class="filter-select" aria-label="Filter by vehicle type">
+                        <option value="ALL">All Vehicle Types</option>
+                        <option value="4-Wheeler">4-Wheeler (Car/SUV)</option>
+                        <option value="2-Wheeler">2-Wheeler (Bike/Scooter)</option>
+                        <option value="Heavy Vehicle">Heavy Vehicle (Bus/Truck)</option>
+                    </select>
+
+                    <select id="slot-status-filter" class="filter-select" aria-label="Filter by slot status">
+                        <option value="ALL">All Statuses</option>
+                        <option value="available">Available (Green)</option>
+                        <option value="occupied">Occupied (Red)</option>
+                        <option value="disabled">Disabled (Gray)</option>
+                    </select>
+
+                    <button class="btn btn-outline btn-sm" id="reset-slot-filter-btn">Reset Filters</button>
+                </div>
+
+                <!-- Slots Grid -->
+                <div class="parking-grid" id="all-slots-grid">
+                    <!-- Populated dynamically via JavaScript -->
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SECTION 3: PARK VEHICLE FORM
+                 ==================================================================== -->
+            <section id="section-park" class="section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Park a Vehicle</h1>
+                        <p class="section-subtitle">Select an available parking slot and register the vehicle details.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="navigateToSection('slots')">
+                        ⬅️ Back to Slots
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                    <!-- Registration Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Vehicle Entry Form</h2>
+                        </div>
+
+                        <form id="park-vehicle-form" novalidate>
+                            <!-- Vehicle Number -->
+                            <div class="form-group">
+                                <label for="input-vehicle-number" class="form-label">Vehicle Registration Number *</label>
+                                <input type="text" id="input-vehicle-number" class="form-control" placeholder="e.g. KA-01-AB-1234 or DL-04-TC-8890" maxlength="20" required>
+                                <div class="form-text-error" id="error-vehicle-number">Please enter a valid vehicle number.</div>
+                                <div class="form-hint">Standard format: State code, district number, series & 4 digits.</div>
+                            </div>
+
+                            <!-- Owner Name -->
+                            <div class="form-group">
+                                <label for="input-owner-name" class="form-label">Vehicle Owner Name *</label>
+                                <input type="text" id="input-owner-name" class="form-control" placeholder="e.g. John Doe / Priya Sharma" maxlength="50" required>
+                                <div class="form-text-error" id="error-owner-name">Please enter the owner's full name.</div>
+                            </div>
+
+                            <!-- Vehicle Type -->
+                            <div class="form-group">
+                                <label for="select-vehicle-type" class="form-label">Vehicle Type *</label>
+                                <select id="select-vehicle-type" class="form-control" required>
+                                    <option value="4-Wheeler">4-Wheeler (Car / SUV / Sedan)</option>
+                                    <option value="2-Wheeler">2-Wheeler (Motorcycle / Scooter)</option>
+                                    <option value="Heavy Vehicle">Heavy Vehicle (Bus / Van / Truck)</option>
+                                </select>
+                            </div>
+
+                            <!-- Parking Slot Selection -->
+                            <div class="form-group">
+                                <label for="select-parking-slot" class="form-label">Select Available Parking Slot *</label>
+                                <select id="select-parking-slot" class="form-control" required>
+                                    <!-- Populated dynamically with available slots -->
+                                </select>
+                                <div class="form-text-error" id="error-parking-slot">Please select an available parking slot.</div>
+                                <div class="form-hint">Only currently unoccupied and active slots are displayed.</div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div style="margin-top: 25px;">
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                                    🚗 Confirm & Park Vehicle
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Guidance & Information Box -->
+                    <div>
+                        <div class="card" style="background: #ffffff; border-left: 5px solid var(--primary);">
+                            <h3 class="card-title" style="margin-bottom: 12px;">📌 Important Parking Guidelines</h3>
+                            <ul style="padding-left: 20px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.8;">
+                                <li>Ensure the vehicle is parked within the bay boundary lines.</li>
+                                <li>Verify that your vehicle type matches the allocated slot category.</li>
+                                <li>Duplicate entries of currently active vehicles are automatically rejected.</li>
+                                <li>Parking receipts are generated instantly upon confirmation.</li>
+                                <li>No online payment is required for this demo application.</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Live Availability Snapshot</h3>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div style="flex: 1; text-align: center; background: var(--success-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--success-border);">
+                                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--success);" id="quick-avail-count">0</div>
+                                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--success-text);">SLOTS AVAILABLE</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; background: var(--danger-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--danger-border);">
+                                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--danger);" id="quick-occ-count">0</div>
+                                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--danger-text);">SLOTS OCCUPIED</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SECTION 4: ACTIVE PARKED VEHICLES
+                 ==================================================================== -->
+            <section id="section-active-vehicles" class="section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Currently Parked Vehicles</h1>
+                        <p class="section-subtitle">Real-time roster of all parked vehicles. Release vehicles when they exit.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="navigateToSection('park')">
+                        ➕ Park Another Vehicle
+                    </button>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="active-vehicle-search" placeholder="Search by vehicle number, owner, or slot ID...">
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-responsive">
+                        <table class="custom-table" id="active-vehicles-table">
+                            <thead>
+                                <tr>
+                                    <th>Slot ID</th>
+                                    <th>Vehicle Number</th>
+                                    <th>Owner Name</th>
+                                    <th>Vehicle Type</th>
+                                    <th>Floor / Zone</th>
+                                    <th>Parked Time</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="active-vehicles-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="no-active-vehicles-msg" class="empty-state" style="display: none;">
+                        <div class="empty-state-icon">🅿️</div>
+                        <h3 class="empty-state-title">No Vehicles Currently Parked</h3>
+                        <p class="empty-state-text">All parking slots are currently free. Park a vehicle to see it listed here.</p>
+                        <button class="btn btn-primary btn-sm" onclick="navigateToSection('park')">Park a Vehicle</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SECTION 5: PARKING HISTORY
+                 ==================================================================== -->
+            <section id="section-history" class="section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">Parking History & Logs</h1>
+                        <p class="section-subtitle">Complete transaction log of all vehicles parked and released.</p>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="history-search-input" placeholder="Search history by vehicle number, owner, or slot ID...">
+                    </div>
+                    <select id="history-type-filter" class="filter-select" aria-label="Filter history by vehicle type">
+                        <option value="ALL">All Vehicle Types</option>
+                        <option value="4-Wheeler">4-Wheeler</option>
+                        <option value="2-Wheeler">2-Wheeler</option>
+                        <option value="Heavy Vehicle">Heavy Vehicle</option>
+                    </select>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-responsive">
+                        <table class="custom-table" id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Vehicle Number</th>
+                                    <th>Owner Name</th>
+                                    <th>Type</th>
+                                    <th>Slot</th>
+                                    <th>In Time</th>
+                                    <th>Out Time</th>
+                                    <th>Duration</th>
+                                    <th>Released By</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="no-history-msg" class="empty-state" style="display: none;">
+                        <div class="empty-state-icon">📜</div>
+                        <h3 class="empty-state-title">No Parking History Found</h3>
+                        <p class="empty-state-text">When vehicles are released from parking slots, their detailed session records appear here.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SECTION 6: ABOUT & PORTFOLIO SHOWCASE
+                 ==================================================================== -->
+            <section id="section-about" class="section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">About ParkEase</h1>
+                        <p class="section-subtitle">Modern, lightweight Parking Management Web Application built with vanilla web technologies.</p>
+                    </div>
+                </div>
+
+                <div class="card" style="background: linear-gradient(to right, #ffffff, var(--primary-light));">
+                    <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; color: var(--primary-dark);">🚗 Project Overview</h2>
+                    <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
+                        <strong>ParkEase</strong> is an end-to-end, zero-dependency Parking Management System crafted using pure <strong>HTML5, CSS3, and Vanilla JavaScript</strong>.
+                        It leverages the browser's <strong>LocalStorage API</strong> for persistent client-side data storage without requiring any backend server, Node.js, PHP, or external databases.
+                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7;">
+                        Ideal for college projects, viva presentations, and web development portfolios. It delivers an intuitive User Panel alongside a comprehensive Admin Dashboard.
+                    </p>
+                </div>
+
+                <div class="about-grid">
+                    <div class="feature-box">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">Pure Vanilla Stack</h3>
+                        <p class="feature-desc">Built with 100% native HTML5, CSS3, and ES6+ JavaScript. No external libraries, npm dependencies, or heavy frameworks.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">💾</div>
+                        <h3 class="feature-title">LocalStorage Persistence</h3>
+                        <p class="feature-desc">All parking slots, vehicle statuses, historical logs, and authentication states persist seamlessly across browser refreshes.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">🗺️</div>
+                        <h3 class="feature-title">Visual Parking Bays</h3>
+                        <p class="feature-desc">Interactive visual parking lot layout featuring color-coded statuses: Green (Available), Red (Occupied), and Gray (Disabled).</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">🛡️</div>
+                        <h3 class="feature-title">Robust Validation</h3>
+                        <p class="feature-desc">Client-side validations preventing duplicate vehicle registrations, collisions on occupied slots, and invalid inputs.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">🔐</div>
+                        <h3 class="feature-title">Admin Management</h3>
+                        <p class="feature-desc">Protected Admin Dashboard for slot CRUD operations, maintenance toggling, vehicle management, and audit logs.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="feature-title">Responsive & Mobile Friendly</h3>
+                        <p class="feature-desc">Carefully styled with modern CSS Grid and Flexbox for seamless usability across desktops, tablets, and smartphones.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ====================================================================
+         SLOT DETAILS MODAL
+         ==================================================================== -->
+    <div class="modal-backdrop" id="slotDetailModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-slot-title">Parking Slot Details</h3>
+                <button class="modal-close" onclick="closeModal('slotDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-slot-body">
+                <!-- Injected via JavaScript -->
+            </div>
+            <div class="modal-footer" id="modal-slot-footer">
+                <button class="btn btn-outline" onclick="closeModal('slotDetailModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         RELEASE VEHICLE CONFIRMATION MODAL
+         ==================================================================== -->
+    <div class="modal-backdrop" id="releaseConfirmModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">Release Vehicle</h3>
+                <button class="modal-close" onclick="closeModal('releaseConfirmModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-release-body">
+                <p style="margin-bottom: 15px; color: var(--text-muted);">Are you sure you want to release this vehicle from its parking slot?</p>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Vehicle Number</div>
+                        <div class="detail-value" id="release-modal-veh-no">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Slot ID</div>
+                        <div class="detail-value" id="release-modal-slot-id">--</div>
+                    </div>
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Owner Name</div>
+                        <div class="detail-value" id="release-modal-owner">--</div>
+                    </div>
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Parked Since</div>
+                        <div class="detail-value" id="release-modal-time">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('releaseConfirmModal')">Cancel</button>
+                <button class="btn btn-danger" id="confirm-release-btn">Yes, Release Vehicle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         PARKING SUCCESS RECEIPT MODAL
+         ==================================================================== -->
+    <div class="modal-backdrop" id="receiptModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">🚗 Parking Receipt</h3>
+                <button class="modal-close" onclick="closeModal('receiptModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-receipt-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 3rem;">✅</div>
+                    <h3 style="color: var(--success); font-weight: 800; margin-top: 6px;">Vehicle Parked Successfully!</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">Please retain this receipt for your records.</p>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Slot Allocated</div>
+                        <div class="detail-value" style="color: var(--primary);" id="receipt-slot-id">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Vehicle Type</div>
+                        <div class="detail-value" id="receipt-type">--</div>
+                    </div>
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Vehicle Number</div>
+                        <div class="detail-value" id="receipt-veh-no">--</div>
+                    </div>
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Owner Name</div>
+                        <div class="detail-value" id="receipt-owner">--</div>
+                    </div>
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Check-in Timestamp</div>
+                        <div class="detail-value" id="receipt-time">--</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('receiptModal')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         TOAST NOTIFICATIONS CONTAINER
+         ==================================================================== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ====================================================================
+         FOOTER
+         ==================================================================== -->
+    <footer class="footer">
+        <div class="container">
+            <p><strong>ParkEase</strong> — Smart Parking Management System &copy; 2026. All rights reserved.</p>
+            <p style="font-size: 0.82rem; margin-top: 4px;">Crafted with HTML5, CSS3, & Vanilla JavaScript (LocalStorage Powered)</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
