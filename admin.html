@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ParkEase Admin Dashboard for Parking Slot and Vehicle Management.">
+    <meta name="description" content="ParkEase Admin Dashboard - Slot Management, Subscriptions, Payments & Revenue Reports.">
     <title>Admin Dashboard | ParkEase</title>
     <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
@@ -11,17 +11,17 @@
 <body>
 
     <!-- ====================================================================
-         LOGIN SCREEN (Shown when admin is logged out)
+         LOGIN SCREEN (Shown when logged out)
          ==================================================================== -->
     <div id="admin-login-view" class="login-wrapper" style="display: none;">
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo">🔐</div>
                 <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">Admin Portal Login</h1>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Sign in to access system controls & slot management</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Sign in to access system controls & revenue analytics</p>
             </div>
 
-            <!-- Demo Credentials Banner -->
+            <!-- Demo Credentials Box -->
             <div class="demo-credentials-box">
                 <div style="font-weight: 700; margin-bottom: 2px;">🔑 Demo Login Credentials:</div>
                 <div>Username: <strong>admin</strong></div>
@@ -70,13 +70,13 @@
                 <li class="admin-nav-item">
                     <a class="admin-nav-link active" data-admin-tab="overview">
                         <span class="admin-nav-icon">📊</span>
-                        <span>Overview</span>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a class="admin-nav-link" data-admin-tab="slots">
                         <span class="admin-nav-icon">🅿️</span>
-                        <span>Slot Management</span>
+                        <span>Parking Slots</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
@@ -86,22 +86,40 @@
                     </a>
                 </li>
                 <li class="admin-nav-item">
-                    <a class="admin-nav-link" data-admin-tab="history">
+                    <a class="admin-nav-link" data-admin-tab="subscriptions">
                         <span class="admin-nav-icon">📜</span>
+                        <span>Monthly Subscriptions</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="payments">
+                        <span class="admin-nav-icon">💳</span>
+                        <span>Payments</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="revenue">
+                        <span class="admin-nav-icon">📈</span>
+                        <span>Revenue Reports</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" data-admin-tab="history">
+                        <span class="admin-nav-icon">🕒</span>
                         <span>Parking History</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a class="admin-nav-link" data-admin-tab="settings">
                         <span class="admin-nav-icon">⚙️</span>
-                        <span>System Settings</span>
+                        <span>Settings & Plans</span>
                     </a>
                 </li>
             </ul>
 
             <div class="admin-sidebar-footer">
                 <a href="index.html" class="btn btn-outline btn-sm" style="width: 100%; color: #ffffff; border-color: rgba(255, 255, 255, 0.2); margin-bottom: 8px;">
-                    🌐 Public User Portal
+                    🌐 Public Portal
                 </a>
                 <button class="btn btn-danger btn-sm" id="admin-logout-btn" style="width: 100%;">
                     🚪 Logout
@@ -131,41 +149,41 @@
             <div class="admin-body">
 
                 <!-- ================================================================
-                     TAB 1: OVERVIEW & STATS
+                     TAB 1: OVERVIEW & LIVE METRICS
                      ================================================================ -->
                 <div id="tab-overview" class="admin-tab-content active">
                     <!-- Metric Cards -->
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-info">
-                                <div class="stat-label">Total Parking Slots</div>
-                                <div class="stat-value" id="adm-stat-total">0</div>
+                                <div class="stat-label">Total Revenue</div>
+                                <div class="stat-value" id="adm-stat-revenue" style="color: var(--primary-dark);">₹0</div>
                             </div>
-                            <div class="stat-icon blue">🅿️</div>
+                            <div class="stat-icon blue">💰</div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-info">
-                                <div class="stat-label">Available Slots</div>
-                                <div class="stat-value" id="adm-stat-avail" style="color: var(--success);">0</div>
+                                <div class="stat-label">Monthly Revenue</div>
+                                <div class="stat-value" id="adm-stat-month-revenue" style="color: var(--success);">₹0</div>
                             </div>
-                            <div class="stat-icon green">🟢</div>
+                            <div class="stat-icon green">📈</div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-info">
-                                <div class="stat-label">Occupied Slots</div>
-                                <div class="stat-value" id="adm-stat-occ" style="color: var(--danger);">0</div>
+                                <div class="stat-label">Active Subscriptions</div>
+                                <div class="stat-value" id="adm-stat-active-subs">0</div>
                             </div>
-                            <div class="stat-icon red">🔴</div>
+                            <div class="stat-icon purple">📜</div>
                         </div>
 
                         <div class="stat-card">
                             <div class="stat-info">
-                                <div class="stat-label">Disabled / Maintenance</div>
-                                <div class="stat-value" id="adm-stat-dis">0</div>
+                                <div class="stat-label">Occupied / Total Slots</div>
+                                <div class="stat-value" id="adm-stat-slots-occ">0 / 0</div>
                             </div>
-                            <div class="stat-icon amber">🛠️</div>
+                            <div class="stat-icon amber">🅿️</div>
                         </div>
                     </div>
 
@@ -173,8 +191,8 @@
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <h3 class="card-title">Live Parking Bay Map</h3>
-                                <p class="section-subtitle">Real-time occupancy status across all managed bays.</p>
+                                <h3 class="card-title">Live Parking Facility Map</h3>
+                                <p class="section-subtitle">Real-time status across all bays with subscription links.</p>
                             </div>
                             <button class="btn btn-primary btn-sm" onclick="openAddSlotModal()">
                                 ➕ Add New Slot
@@ -187,13 +205,13 @@
                 </div>
 
                 <!-- ================================================================
-                     TAB 2: SLOT MANAGEMENT
+                     TAB 2: PARKING SLOTS
                      ================================================================ -->
                 <div id="tab-slots" class="admin-tab-content" style="display: none;">
                     <div class="section-header">
                         <div>
-                            <h2 class="section-title">Slot Management</h2>
-                            <p class="section-subtitle">Add new bays, change operational status, or delete existing slots.</p>
+                            <h2 class="section-title">Parking Slots Management</h2>
+                            <p class="section-subtitle">Add new bays, toggle maintenance state, or remove bays.</p>
                         </div>
                         <button class="btn btn-primary" onclick="openAddSlotModal()">
                             ➕ Add New Parking Slot
@@ -222,7 +240,7 @@
                                         <th>Floor / Zone</th>
                                         <th>Supported Type</th>
                                         <th>Current Status</th>
-                                        <th>Occupying Vehicle</th>
+                                        <th>Occupying Vehicle / Pass</th>
                                         <th style="text-align: right;">Actions</th>
                                     </tr>
                                 </thead>
@@ -235,13 +253,13 @@
                 </div>
 
                 <!-- ================================================================
-                     TAB 3: ACTIVE VEHICLES MANAGEMENT
+                     TAB 3: PARKED VEHICLES
                      ================================================================ -->
                 <div id="tab-vehicles" class="admin-tab-content" style="display: none;">
                     <div class="section-header">
                         <div>
-                            <h2 class="section-title">Active Parked Vehicles</h2>
-                            <p class="section-subtitle">Oversee all parked vehicles and execute administrative releases.</p>
+                            <h2 class="section-title">Currently Parked Vehicles</h2>
+                            <p class="section-subtitle">Oversee all active vehicles and execute administrative releases.</p>
                         </div>
                     </div>
 
@@ -261,7 +279,7 @@
                                         <th>Vehicle Number</th>
                                         <th>Owner Name</th>
                                         <th>Vehicle Type</th>
-                                        <th>Floor</th>
+                                        <th>Pass Type</th>
                                         <th>Parked Since</th>
                                         <th style="text-align: right;">Admin Action</th>
                                     </tr>
@@ -280,13 +298,192 @@
                 </div>
 
                 <!-- ================================================================
-                     TAB 4: PARKING HISTORY & AUDIT LOG
+                     TAB 4: MONTHLY SUBSCRIPTIONS MANAGEMENT
+                     ================================================================ -->
+                <div id="tab-subscriptions" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Monthly Subscriptions Management</h2>
+                            <p class="section-subtitle">Track member passes, verify validity, renew passes, or cancel accounts.</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="adm-sub-search" placeholder="Search subscriptions by ID, customer, vehicle, or slot...">
+                        </div>
+                        <select id="adm-sub-status-filter" class="filter-select" aria-label="Filter subscriptions by status">
+                            <option value="ALL">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Expiring Soon">Expiring Soon (≤ 5 Days)</option>
+                            <option value="Expired">Expired</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subscription ID</th>
+                                        <th>Customer / Owner</th>
+                                        <th>Vehicle No.</th>
+                                        <th>Slot</th>
+                                        <th>Plan</th>
+                                        <th>Amount</th>
+                                        <th>Start Date</th>
+                                        <th>Expiry Date</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right;">Admin Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adm-subscriptions-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="adm-no-subs-msg" class="empty-state" style="display: none;">
+                            <div class="empty-state-icon">📜</div>
+                            <h3 class="empty-state-title">No Subscriptions Found</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 5: PAYMENTS ROSTER
+                     ================================================================ -->
+                <div id="tab-payments" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Payment Transactions Roster</h2>
+                            <p class="section-subtitle">Comprehensive ledger of all processed simulated payment transactions.</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="adm-pay-search" placeholder="Search payments by Payment ID, customer, vehicle...">
+                        </div>
+                        <select id="adm-pay-method-filter" class="filter-select" aria-label="Filter payments by method">
+                            <option value="ALL">All Payment Methods</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Cash">Cash</option>
+                        </select>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Payment ID</th>
+                                        <th>Subscription ID</th>
+                                        <th>Customer</th>
+                                        <th>Vehicle No.</th>
+                                        <th>Slot</th>
+                                        <th>Plan</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Payment Date</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right;">Receipt</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adm-payments-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="adm-no-pays-msg" class="empty-state" style="display: none;">
+                            <div class="empty-state-icon">💳</div>
+                            <h3 class="empty-state-title">No Payment Records Found</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 6: REVENUE REPORTS & ANALYTICS
+                     ================================================================ -->
+                <div id="tab-revenue" class="admin-tab-content" style="display: none;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">Revenue & Financial Analytics</h2>
+                            <p class="section-subtitle">Real-time revenue performance metrics and collection breakdown.</p>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Stat Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Today's Revenue</div>
+                                <div class="stat-value" id="rev-stat-today" style="color: var(--success);">₹0</div>
+                            </div>
+                            <div class="stat-icon green">📅</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">This Month's Revenue</div>
+                                <div class="stat-value" id="rev-stat-month" style="color: var(--primary);">₹0</div>
+                            </div>
+                            <div class="stat-icon blue">📊</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">All-Time Revenue</div>
+                                <div class="stat-value" id="rev-stat-total" style="color: var(--primary-dark);">₹0</div>
+                            </div>
+                            <div class="stat-icon purple">💰</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Paid Subscriptions</div>
+                                <div class="stat-value" id="rev-stat-paid-count">0</div>
+                            </div>
+                            <div class="stat-icon amber">🏷️</div>
+                        </div>
+                    </div>
+
+                    <!-- Pure CSS/JS Visual Revenue Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📈 Monthly Revenue Trend (Pure CSS/JS)</h3>
+                            <span class="badge badge-primary">Dynamic Calculation</span>
+                        </div>
+                        <div class="revenue-chart-container">
+                            <div class="css-bar-chart" id="revenue-bar-chart">
+                                <!-- Injected via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method Breakdown -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">💳 Collection by Payment Method</h3>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;" id="revenue-methods-grid">
+                            <!-- Injected via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================================================================
+                     TAB 7: PARKING HISTORY
                      ================================================================ -->
                 <div id="tab-history" class="admin-tab-content" style="display: none;">
                     <div class="section-header">
                         <div>
-                            <h2 class="section-title">Parking History & Logs</h2>
-                            <p class="section-subtitle">Detailed record of all historical parking sessions.</p>
+                            <h2 class="section-title">Parking History & Audit Logs</h2>
+                            <p class="section-subtitle">Historical entry/exit logs of all released vehicles.</p>
                         </div>
                         <button class="btn btn-outline btn-sm" id="clear-history-btn" style="color: var(--danger); border-color: var(--danger-border);">
                             🗑️ Clear All History
@@ -329,46 +526,38 @@
                 </div>
 
                 <!-- ================================================================
-                     TAB 5: SYSTEM SETTINGS & DEMO RESET
+                     TAB 8: SETTINGS & PLAN PRICING
                      ================================================================ -->
                 <div id="tab-settings" class="admin-tab-content" style="display: none;">
                     <div class="section-header">
                         <div>
-                            <h2 class="section-title">System Settings & Data Tools</h2>
-                            <p class="section-subtitle">Manage demo data, reset persistence, or adjust preferences.</p>
+                            <h2 class="section-title">System Settings & Plan Pricing</h2>
+                            <p class="section-subtitle">Configure monthly plan prices, test data, and factory defaults.</p>
                         </div>
                     </div>
 
+                    <!-- Plan Pricing Configuration Box -->
                     <div class="card">
-                        <h3 class="card-title" style="margin-bottom: 8px;">🔄 Reset Demo Dataset</h3>
+                        <div class="card-header">
+                            <h3 class="card-title">💵 Configure Monthly Plan Prices</h3>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 18px;">
+                            Adjust the standard monthly subscription charges below. Changes take effect immediately.
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;" id="admin-plan-pricing-editor">
+                            <!-- Injected via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- System Reset Box -->
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom: 8px;">🔄 Restore Factory Sample Dataset</h3>
                         <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px; line-height: 1.6;">
-                            Reset all parking slots, active parked vehicles, and historical logs back to the initial factory demo state (P-01 to P-12).
+                            Reset all parking slots, subscriptions, payment logs, and historical archives back to default sample state.
                         </p>
                         <button class="btn btn-danger" id="reset-system-data-btn">
                             ⚠️ Restore Factory Sample Data
                         </button>
-                    </div>
-
-                    <div class="card">
-                        <h3 class="card-title" style="margin-bottom: 8px;">ℹ️ System Information</h3>
-                        <div class="detail-grid" style="margin-top: 15px;">
-                            <div class="detail-item">
-                                <div class="detail-label">Persistence Engine</div>
-                                <div class="detail-value">Browser LocalStorage API</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Technology Architecture</div>
-                                <div class="detail-value">HTML5 / CSS3 / Vanilla JS (ES6)</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Backend Dependency</div>
-                                <div class="detail-value" style="color: var(--success);">Zero (Static SPA)</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Deployment Compatibility</div>
-                                <div class="detail-value">GitHub Pages Ready</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -391,7 +580,6 @@
                         <label for="new-slot-id" class="form-label">Slot Identifier *</label>
                         <input type="text" id="new-slot-id" class="form-control" placeholder="e.g. P-13, B-01, VIP-01" required>
                         <div class="form-text-error" id="error-new-slot-id">Please enter a unique slot identifier.</div>
-                        <div class="form-hint">Must be unique across the facility.</div>
                     </div>
 
                     <div class="form-group">
@@ -431,7 +619,28 @@
     </div>
 
     <!-- ====================================================================
-         CONFIRM ADMIN ACTION MODAL (Delete / Force Release)
+         PRINTABLE RECEIPT MODAL (ADMIN)
+         ==================================================================== -->
+    <div class="modal-backdrop" id="adminReceiptModal">
+        <div class="modal-dialog" style="max-width: 560px;">
+            <div class="modal-header">
+                <h3 class="modal-title">🧾 Payment Receipt</h3>
+                <button class="modal-close" onclick="closeModal('adminReceiptModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="printable-receipt" id="admin-receipt-content">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('adminReceiptModal')">Close</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Print Receipt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         CONFIRM ADMIN ACTION MODAL
          ==================================================================== -->
     <div class="modal-backdrop" id="adminConfirmModal">
         <div class="modal-dialog">

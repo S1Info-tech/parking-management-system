@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Modern, responsive Parking Management System built with HTML5, CSS3, and Vanilla JavaScript.">
-    <title>ParkEase | Smart Parking Management System</title>
+    <meta name="description" content="Modern, responsive Parking Management System with Monthly Subscriptions & Payment Simulation.">
+    <title>ParkEase | Smart Parking & Monthly Subscription System</title>
     <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -28,10 +28,11 @@
             <!-- Navigation Links -->
             <ul class="nav-links" id="navLinks">
                 <li class="nav-item active"><a href="#home" data-nav="home">Home</a></li>
-                <li class="nav-item"><a href="#slots" data-nav="slots">Parking Slots</a></li>
+                <li class="nav-item"><a href="#slots" data-nav="slots">Available Parking</a></li>
                 <li class="nav-item"><a href="#park" data-nav="park">Park Vehicle</a></li>
-                <li class="nav-item"><a href="#active-vehicles" data-nav="active-vehicles">Active Vehicles</a></li>
-                <li class="nav-item"><a href="#history" data-nav="history">Parking History</a></li>
+                <li class="nav-item"><a href="#monthly-parking" data-nav="monthly-parking">Monthly Parking</a></li>
+                <li class="nav-item"><a href="#my-subscriptions" data-nav="my-subscriptions">My Subscriptions</a></li>
+                <li class="nav-item"><a href="#payment-history" data-nav="payment-history">Payment History</a></li>
                 <li class="nav-item"><a href="#about" data-nav="about">About</a></li>
                 <li class="nav-item nav-btn">
                     <a href="admin.html" class="btn btn-sm btn-outline">
@@ -55,11 +56,14 @@
                 <!-- Hero Banner -->
                 <div class="hero-banner">
                     <div>
-                        <h1 class="hero-title">Smart & Real-Time Parking System</h1>
-                        <p class="hero-subtitle">Effortlessly find available parking slots, park your vehicle, track real-time occupancy, and generate parking receipts with zero hassle.</p>
+                        <h1 class="hero-title">Smart Parking & Monthly Subscriptions</h1>
+                        <p class="hero-subtitle">Effortlessly find parking bays, subscribe to monthly parking passes, track live occupancy, and download payment receipts instantly.</p>
                         <div class="hero-actions">
-                            <button class="btn btn-lg hero-btn-light" onclick="navigateToSection('park')">
-                                🚗 Park a Vehicle Now
+                            <button class="btn btn-lg hero-btn-light" onclick="navigateToSection('monthly-parking')">
+                                💳 Monthly Parking Pass
+                            </button>
+                            <button class="btn btn-lg hero-btn-ghost" onclick="navigateToSection('park')">
+                                🚗 Daily Park Vehicle
                             </button>
                             <button class="btn btn-lg hero-btn-ghost" onclick="navigateToSection('slots')">
                                 🗺️ View Visual Layout
@@ -96,10 +100,10 @@
 
                     <div class="stat-card">
                         <div class="stat-info">
-                            <div class="stat-label">Total Parked Vehicles</div>
-                            <div class="stat-value" id="stat-total-vehicles">0</div>
+                            <div class="stat-label">Active Subscriptions</div>
+                            <div class="stat-value" id="stat-active-subs" style="color: var(--primary);">0</div>
                         </div>
-                        <div class="stat-icon amber">🚙</div>
+                        <div class="stat-icon purple">📜</div>
                     </div>
                 </div>
 
@@ -108,7 +112,7 @@
                     <div class="card-header">
                         <div>
                             <h2 class="card-title">Live Parking Bay Overview</h2>
-                            <p class="section-subtitle">Click on any slot to view full details, park, or release a vehicle.</p>
+                            <p class="section-subtitle">Real-time status of all parking slots. Click any slot to view details, park, or subscribe.</p>
                         </div>
                         <div class="parking-legend">
                             <div class="legend-item"><span class="legend-color available"></span> Available</div>
@@ -118,13 +122,13 @@
                     </div>
 
                     <div class="parking-grid" id="home-slots-grid">
-                        <!-- Populated dynamically via JavaScript -->
+                        <!-- Injected via JavaScript -->
                     </div>
                 </div>
             </section>
 
             <!-- ====================================================================
-                 SECTION 2: PARKING SLOTS & VISUAL LAYOUT
+                 SECTION 2: AVAILABLE PARKING SLOTS & VISUAL LAYOUT
                  ==================================================================== -->
             <section id="section-slots" class="section">
                 <div class="section-header">
@@ -132,9 +136,14 @@
                         <h1 class="section-title">Parking Slots Directory</h1>
                         <p class="section-subtitle">Browse, filter, and inspect parking spaces across all floors and zones.</p>
                     </div>
-                    <button class="btn btn-primary" onclick="navigateToSection('park')">
-                        ➕ Park a Vehicle
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="navigateToSection('monthly-parking')">
+                            💳 Monthly Pass
+                        </button>
+                        <button class="btn btn-outline" onclick="navigateToSection('park')">
+                            ➕ Daily Park
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Filter & Search Controls -->
@@ -163,18 +172,18 @@
 
                 <!-- Slots Grid -->
                 <div class="parking-grid" id="all-slots-grid">
-                    <!-- Populated dynamically via JavaScript -->
+                    <!-- Injected via JavaScript -->
                 </div>
             </section>
 
             <!-- ====================================================================
-                 SECTION 3: PARK VEHICLE FORM
+                 SECTION 3: PARK VEHICLE FORM (DAILY CHECK-IN)
                  ==================================================================== -->
             <section id="section-park" class="section">
                 <div class="section-header">
                     <div>
-                        <h1 class="section-title">Park a Vehicle</h1>
-                        <p class="section-subtitle">Select an available parking slot and register the vehicle details.</p>
+                        <h1 class="section-title">Daily Vehicle Entry</h1>
+                        <p class="section-subtitle">Select an available parking slot and register the vehicle details for immediate parking.</p>
                     </div>
                     <button class="btn btn-outline" onclick="navigateToSection('slots')">
                         ⬅️ Back to Slots
@@ -192,15 +201,14 @@
                             <!-- Vehicle Number -->
                             <div class="form-group">
                                 <label for="input-vehicle-number" class="form-label">Vehicle Registration Number *</label>
-                                <input type="text" id="input-vehicle-number" class="form-control" placeholder="e.g. KA-01-AB-1234 or DL-04-TC-8890" maxlength="20" required>
+                                <input type="text" id="input-vehicle-number" class="form-control" placeholder="e.g. KA-01-AB-1234 or MH-12-PQ-9090" maxlength="20" required>
                                 <div class="form-text-error" id="error-vehicle-number">Please enter a valid vehicle number.</div>
-                                <div class="form-hint">Standard format: State code, district number, series & 4 digits.</div>
                             </div>
 
                             <!-- Owner Name -->
                             <div class="form-group">
                                 <label for="input-owner-name" class="form-label">Vehicle Owner Name *</label>
-                                <input type="text" id="input-owner-name" class="form-control" placeholder="e.g. John Doe / Priya Sharma" maxlength="50" required>
+                                <input type="text" id="input-owner-name" class="form-control" placeholder="e.g. John Doe" maxlength="50" required>
                                 <div class="form-text-error" id="error-owner-name">Please enter the owner's full name.</div>
                             </div>
 
@@ -218,13 +226,11 @@
                             <div class="form-group">
                                 <label for="select-parking-slot" class="form-label">Select Available Parking Slot *</label>
                                 <select id="select-parking-slot" class="form-control" required>
-                                    <!-- Populated dynamically with available slots -->
+                                    <!-- Populated dynamically -->
                                 </select>
                                 <div class="form-text-error" id="error-parking-slot">Please select an available parking slot.</div>
-                                <div class="form-hint">Only currently unoccupied and active slots are displayed.</div>
                             </div>
 
-                            <!-- Submit Button -->
                             <div style="margin-top: 25px;">
                                 <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
                                     🚗 Confirm & Park Vehicle
@@ -233,17 +239,17 @@
                         </form>
                     </div>
 
-                    <!-- Guidance & Information Box -->
+                    <!-- Subscription CTA Box -->
                     <div>
-                        <div class="card" style="background: #ffffff; border-left: 5px solid var(--primary);">
-                            <h3 class="card-title" style="margin-bottom: 12px;">📌 Important Parking Guidelines</h3>
-                            <ul style="padding-left: 20px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.8;">
-                                <li>Ensure the vehicle is parked within the bay boundary lines.</li>
-                                <li>Verify that your vehicle type matches the allocated slot category.</li>
-                                <li>Duplicate entries of currently active vehicles are automatically rejected.</li>
-                                <li>Parking receipts are generated instantly upon confirmation.</li>
-                                <li>No online payment is required for this demo application.</li>
-                            </ul>
+                        <div class="card" style="background: linear-gradient(135deg, #eff6ff, #ffffff); border: 2px solid #bfdbfe;">
+                            <div style="font-size: 2.2rem; margin-bottom: 8px;">💳</div>
+                            <h3 class="card-title" style="color: var(--primary-dark); margin-bottom: 6px;">Need Hassle-Free Regular Parking?</h3>
+                            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 18px;">
+                                Get guaranteed reserved parking 24/7 with our affordable <strong>Monthly Parking Subscriptions</strong> starting at just ₹500/month!
+                            </p>
+                            <button class="btn btn-primary" onclick="navigateToSection('monthly-parking')" style="width: 100%;">
+                                View Monthly Plans & Subscribe ➔
+                            </button>
                         </div>
 
                         <div class="card">
@@ -251,13 +257,13 @@
                                 <h3 class="card-title">Live Availability Snapshot</h3>
                             </div>
                             <div style="display: flex; gap: 15px;">
-                                <div style="flex: 1; text-align: center; background: var(--success-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--success-border);">
+                                <div style="flex: 1; text-align: center; background: var(--success-bg); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--success-border);">
                                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--success);" id="quick-avail-count">0</div>
-                                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--success-text);">SLOTS AVAILABLE</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--success-text);">SLOTS AVAILABLE</div>
                                 </div>
-                                <div style="flex: 1; text-align: center; background: var(--danger-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--danger-border);">
+                                <div style="flex: 1; text-align: center; background: var(--danger-bg); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--danger-border);">
                                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--danger);" id="quick-occ-count">0</div>
-                                    <div style="font-size: 0.82rem; font-weight: 600; color: var(--danger-text);">SLOTS OCCUPIED</div>
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--danger-text);">SLOTS OCCUPIED</div>
                                 </div>
                             </div>
                         </div>
@@ -266,170 +272,454 @@
             </section>
 
             <!-- ====================================================================
-                 SECTION 4: ACTIVE PARKED VEHICLES
+                 SECTION 4: MONTHLY PARKING & SUBSCRIPTION BOOKING
                  ==================================================================== -->
-            <section id="section-active-vehicles" class="section">
+            <section id="section-monthly-parking" class="section">
                 <div class="section-header">
                     <div>
-                        <h1 class="section-title">Currently Parked Vehicles</h1>
-                        <p class="section-subtitle">Real-time roster of all parked vehicles. Release vehicles when they exit.</p>
+                        <h1 class="section-title">Monthly Parking Subscriptions</h1>
+                        <p class="section-subtitle">Choose a monthly plan, select your preferred parking bay, and complete your demo payment.</p>
                     </div>
-                    <button class="btn btn-primary" onclick="navigateToSection('park')">
-                        ➕ Park Another Vehicle
+                    <button class="btn btn-outline" onclick="navigateToSection('my-subscriptions')">
+                        📋 View My Subscriptions
+                    </button>
+                </div>
+
+                <!-- Plan Selection Cards -->
+                <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 14px;">1. Select Monthly Plan:</h3>
+                <div class="plans-grid" id="monthly-plans-grid">
+                    <!-- Populated dynamically via storage.js plans -->
+                </div>
+
+                <!-- Subscription & Payment Details Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">2. Subscription & Vehicle Registration</h2>
+                    </div>
+
+                    <form id="monthly-subscribe-form" novalidate>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                            
+                            <!-- Vehicle Number -->
+                            <div class="form-group">
+                                <label for="sub-vehicle-number" class="form-label">Vehicle Registration Number *</label>
+                                <input type="text" id="sub-vehicle-number" class="form-control" placeholder="e.g. MH-12-AB-1234" maxlength="20" required>
+                                <div class="form-text-error" id="error-sub-vehicle-number">Please enter a valid vehicle number.</div>
+                            </div>
+
+                            <!-- Owner Name -->
+                            <div class="form-group">
+                                <label for="sub-owner-name" class="form-label">Vehicle Owner Name *</label>
+                                <input type="text" id="sub-owner-name" class="form-control" placeholder="e.g. John Fernandes" maxlength="50" required>
+                                <div class="form-text-error" id="error-sub-owner-name">Please enter owner full name.</div>
+                            </div>
+
+                            <!-- Vehicle Type -->
+                            <div class="form-group">
+                                <label for="sub-vehicle-type" class="form-label">Vehicle Category</label>
+                                <select id="sub-vehicle-type" class="form-control" required>
+                                    <option value="4-Wheeler">4-Wheeler (Car / SUV)</option>
+                                    <option value="2-Wheeler">2-Wheeler (Bike / Scooter)</option>
+                                    <option value="Heavy Vehicle">Heavy Vehicle (Bus / Truck)</option>
+                                </select>
+                            </div>
+
+                            <!-- Parking Slot Selection -->
+                            <div class="form-group">
+                                <label for="sub-parking-slot" class="form-label">Select Dedicated Slot *</label>
+                                <select id="sub-parking-slot" class="form-control" required>
+                                    <!-- Populated dynamically -->
+                                </select>
+                                <div class="form-text-error" id="error-sub-parking-slot">Please select an available parking slot.</div>
+                            </div>
+
+                            <!-- Start Date -->
+                            <div class="form-group">
+                                <label for="sub-start-date" class="form-label">Subscription Start Date *</label>
+                                <input type="date" id="sub-start-date" class="form-control" required>
+                            </div>
+
+                            <!-- End Date (Auto-calculated) -->
+                            <div class="form-group">
+                                <label for="sub-end-date" class="form-label">Subscription Expiry Date (30 Days)</label>
+                                <input type="date" id="sub-end-date" class="form-control" readonly style="background-color: var(--bg-main); font-weight: 700; color: var(--primary-dark);">
+                            </div>
+
+                        </div>
+
+                        <!-- Live Order Summary Box -->
+                        <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px 22px; margin: 20px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Selected Plan & Slot</div>
+                                    <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);" id="summary-plan-title">Car Monthly Parking — Slot P-04</div>
+                                    <div style="font-size: 0.88rem; color: var(--text-muted);" id="summary-date-range">Valid: 30 Days</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Monthly Amount</div>
+                                    <div style="font-size: 2rem; font-weight: 900; color: var(--primary-dark);" id="summary-amount">₹1,500</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                            💳 Proceed to Demo Payment (₹<span id="btn-pay-amount">1,500</span>)
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SECTION 5: MY SUBSCRIPTIONS
+                 ==================================================================== -->
+            <section id="section-my-subscriptions" class="section">
+                <div class="section-header">
+                    <div>
+                        <h1 class="section-title">My Monthly Subscriptions</h1>
+                        <p class="section-subtitle">View and manage all monthly parking subscriptions, check remaining days, or renew.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="navigateToSection('monthly-parking')">
+                        ➕ New Monthly Subscription
                     </button>
                 </div>
 
                 <div class="filter-bar">
                     <div class="search-input-wrap">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="active-vehicle-search" placeholder="Search by vehicle number, owner, or slot ID...">
+                        <input type="text" id="subs-search-input" placeholder="Search by vehicle number, owner name, or subscription ID...">
                     </div>
+                    <select id="subs-status-filter" class="filter-select" aria-label="Filter subscriptions by status">
+                        <option value="ALL">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Expiring Soon">Expiring Soon (≤ 5 Days)</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
                 </div>
 
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <div class="table-responsive">
-                        <table class="custom-table" id="active-vehicles-table">
+                        <table class="custom-table" id="subs-table">
                             <thead>
                                 <tr>
-                                    <th>Slot ID</th>
+                                    <th>Sub ID</th>
                                     <th>Vehicle Number</th>
                                     <th>Owner Name</th>
-                                    <th>Vehicle Type</th>
-                                    <th>Floor / Zone</th>
-                                    <th>Parked Time</th>
-                                    <th style="text-align: right;">Action</th>
+                                    <th>Slot</th>
+                                    <th>Plan</th>
+                                    <th>Amount</th>
+                                    <th>Start Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="active-vehicles-tbody">
+                            <tbody id="subs-tbody">
                                 <!-- Populated dynamically -->
                             </tbody>
                         </table>
                     </div>
-                    <div id="no-active-vehicles-msg" class="empty-state" style="display: none;">
-                        <div class="empty-state-icon">🅿️</div>
-                        <h3 class="empty-state-title">No Vehicles Currently Parked</h3>
-                        <p class="empty-state-text">All parking slots are currently free. Park a vehicle to see it listed here.</p>
-                        <button class="btn btn-primary btn-sm" onclick="navigateToSection('park')">Park a Vehicle</button>
+                    <div id="no-subs-msg" class="empty-state" style="display: none;">
+                        <div class="empty-state-icon">📜</div>
+                        <h3 class="empty-state-title">No Subscriptions Found</h3>
+                        <p class="empty-state-text">You have not subscribed to any monthly parking passes yet.</p>
+                        <button class="btn btn-primary btn-sm" onclick="navigateToSection('monthly-parking')">Subscribe Now</button>
                     </div>
                 </div>
             </section>
 
             <!-- ====================================================================
-                 SECTION 5: PARKING HISTORY
+                 SECTION 6: PAYMENT HISTORY
                  ==================================================================== -->
-            <section id="section-history" class="section">
+            <section id="section-payment-history" class="section">
                 <div class="section-header">
                     <div>
-                        <h1 class="section-title">Parking History & Logs</h1>
-                        <p class="section-subtitle">Complete transaction log of all vehicles parked and released.</p>
+                        <h1 class="section-title">Payment History & Receipts</h1>
+                        <p class="section-subtitle">Review all completed simulated payments and download printable receipts.</p>
                     </div>
                 </div>
 
                 <div class="filter-bar">
                     <div class="search-input-wrap">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="history-search-input" placeholder="Search history by vehicle number, owner, or slot ID...">
+                        <input type="text" id="pay-search-input" placeholder="Search payments by Payment ID, vehicle, or owner...">
                     </div>
-                    <select id="history-type-filter" class="filter-select" aria-label="Filter history by vehicle type">
-                        <option value="ALL">All Vehicle Types</option>
-                        <option value="4-Wheeler">4-Wheeler</option>
-                        <option value="2-Wheeler">2-Wheeler</option>
-                        <option value="Heavy Vehicle">Heavy Vehicle</option>
+                    <select id="pay-method-filter" class="filter-select" aria-label="Filter payments by method">
+                        <option value="ALL">All Payment Methods</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                    <select id="pay-status-filter" class="filter-select" aria-label="Filter payments by status">
+                        <option value="ALL">All Statuses</option>
+                        <option value="Successful">Successful</option>
                     </select>
                 </div>
 
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <div class="table-responsive">
-                        <table class="custom-table" id="history-table">
+                        <table class="custom-table" id="payments-table">
                             <thead>
                                 <tr>
-                                    <th>Log ID</th>
+                                    <th>Payment ID</th>
+                                    <th>Subscription ID</th>
                                     <th>Vehicle Number</th>
-                                    <th>Owner Name</th>
-                                    <th>Type</th>
                                     <th>Slot</th>
-                                    <th>In Time</th>
-                                    <th>Out Time</th>
-                                    <th>Duration</th>
-                                    <th>Released By</th>
+                                    <th>Plan</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Receipt</th>
                                 </tr>
                             </thead>
-                            <tbody id="history-tbody">
+                            <tbody id="payments-tbody">
                                 <!-- Populated dynamically -->
                             </tbody>
                         </table>
                     </div>
-                    <div id="no-history-msg" class="empty-state" style="display: none;">
-                        <div class="empty-state-icon">📜</div>
-                        <h3 class="empty-state-title">No Parking History Found</h3>
-                        <p class="empty-state-text">When vehicles are released from parking slots, their detailed session records appear here.</p>
+                    <div id="no-payments-msg" class="empty-state" style="display: none;">
+                        <div class="empty-state-icon">🧾</div>
+                        <h3 class="empty-state-title">No Payment Records Found</h3>
+                        <p class="empty-state-text">Payments made for monthly passes will appear here.</p>
                     </div>
                 </div>
             </section>
 
             <!-- ====================================================================
-                 SECTION 6: ABOUT & PORTFOLIO SHOWCASE
+                 SECTION 7: ABOUT & PORTFOLIO SHOWCASE
                  ==================================================================== -->
             <section id="section-about" class="section">
                 <div class="section-header">
                     <div>
                         <h1 class="section-title">About ParkEase</h1>
-                        <p class="section-subtitle">Modern, lightweight Parking Management Web Application built with vanilla web technologies.</p>
+                        <p class="section-subtitle">Modern, lightweight Parking Management Web Application with Monthly Payments.</p>
                     </div>
                 </div>
 
                 <div class="card" style="background: linear-gradient(to right, #ffffff, var(--primary-light));">
                     <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; color: var(--primary-dark);">🚗 Project Overview</h2>
                     <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin-bottom: 16px;">
-                        <strong>ParkEase</strong> is an end-to-end, zero-dependency Parking Management System crafted using pure <strong>HTML5, CSS3, and Vanilla JavaScript</strong>.
-                        It leverages the browser's <strong>LocalStorage API</strong> for persistent client-side data storage without requiring any backend server, Node.js, PHP, or external databases.
-                    </p>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7;">
-                        Ideal for college projects, viva presentations, and web development portfolios. It delivers an intuitive User Panel alongside a comprehensive Admin Dashboard.
+                        <strong>ParkEase</strong> is a full-featured, zero-dependency Parking Management System crafted using pure <strong>HTML5, CSS3, and Vanilla JavaScript</strong>.
+                        It manages daily parking, monthly subscriptions, simulated payment processing (UPI, Card, Cash), and revenue reporting, persisting all data directly in the browser via the <strong>LocalStorage API</strong>.
                     </p>
                 </div>
 
                 <div class="about-grid">
                     <div class="feature-box">
-                        <div class="feature-icon">⚡</div>
-                        <h3 class="feature-title">Pure Vanilla Stack</h3>
-                        <p class="feature-desc">Built with 100% native HTML5, CSS3, and ES6+ JavaScript. No external libraries, npm dependencies, or heavy frameworks.</p>
-                    </div>
-
-                    <div class="feature-box">
-                        <div class="feature-icon">💾</div>
-                        <h3 class="feature-title">LocalStorage Persistence</h3>
-                        <p class="feature-desc">All parking slots, vehicle statuses, historical logs, and authentication states persist seamlessly across browser refreshes.</p>
-                    </div>
-
-                    <div class="feature-box">
-                        <div class="feature-icon">🗺️</div>
-                        <h3 class="feature-title">Visual Parking Bays</h3>
-                        <p class="feature-desc">Interactive visual parking lot layout featuring color-coded statuses: Green (Available), Red (Occupied), and Gray (Disabled).</p>
+                        <div class="feature-icon">💳</div>
+                        <h3 class="feature-title">Monthly Subscriptions</h3>
+                        <p class="feature-desc">Automated 30-day passes with dynamic pricing for bikes (₹500), cars (₹1,500), premium slots (₹2,000), and heavy vehicles (₹3,000).</p>
                     </div>
 
                     <div class="feature-box">
                         <div class="feature-icon">🛡️</div>
-                        <h3 class="feature-title">Robust Validation</h3>
-                        <p class="feature-desc">Client-side validations preventing duplicate vehicle registrations, collisions on occupied slots, and invalid inputs.</p>
+                        <h3 class="feature-title">Payment Simulation</h3>
+                        <p class="feature-desc">Realistic simulated checkout interface supporting UPI, Debit/Credit Card, and Cash without processing real funds.</p>
                     </div>
 
                     <div class="feature-box">
-                        <div class="feature-icon">🔐</div>
-                        <h3 class="feature-title">Admin Management</h3>
-                        <p class="feature-desc">Protected Admin Dashboard for slot CRUD operations, maintenance toggling, vehicle management, and audit logs.</p>
+                        <div class="feature-icon">🖨️</div>
+                        <h3 class="feature-title">Printable Receipts</h3>
+                        <p class="feature-desc">Clean, professional payment receipts with unique Payment and Subscription IDs ready for instant browser printing.</p>
                     </div>
 
                     <div class="feature-box">
-                        <div class="feature-icon">📱</div>
-                        <h3 class="feature-title">Responsive & Mobile Friendly</h3>
-                        <p class="feature-desc">Carefully styled with modern CSS Grid and Flexbox for seamless usability across desktops, tablets, and smartphones.</p>
+                        <div class="feature-icon">⏳</div>
+                        <h3 class="feature-title">Expiry Tracking & Renewal</h3>
+                        <p class="feature-desc">Real-time subscription lifecycle tracking (Active, Expiring Soon, Expired) with one-click instant renewal.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">📊</div>
+                        <h3 class="feature-title">Admin Revenue Reports</h3>
+                        <p class="feature-desc">Comprehensive administrative analytics displaying daily/monthly earnings, transaction logs, and pure CSS charts.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <div class="feature-icon">💾</div>
+                        <h3 class="feature-title">Zero Backend Needed</h3>
+                        <p class="feature-desc">100% client-side execution ready for GitHub Pages hosting without requiring Node.js, PHP, or external databases.</p>
                     </div>
                 </div>
             </section>
 
         </div>
     </main>
+
+    <!-- ====================================================================
+         DEMO PAYMENT MODAL (CHECKOUT SIMULATION)
+         ==================================================================== -->
+    <div class="modal-backdrop" id="paymentModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">💳 Complete Demo Payment</h3>
+                <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <!-- Mandatory Demo Disclaimer Banner -->
+                <div class="demo-payment-alert">
+                    <span>⚠️</span>
+                    <span><strong>Demo Payment:</strong> No real money or card details will be charged.</span>
+                </div>
+
+                <!-- Payment Summary Tag -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 18px;">
+                    <div>
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Payable Amount</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-dark);" id="modal-pay-amount">₹1,500</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Selected Plan</div>
+                        <div style="font-weight: 700; color: var(--text-main);" id="modal-pay-plan">Monthly Car Parking</div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Tabs -->
+                <div class="payment-methods-tabs">
+                    <button class="pay-tab-btn active" data-pay-method="UPI">⚡ UPI / QR</button>
+                    <button class="pay-tab-btn" data-pay-method="Debit Card">💳 Debit Card</button>
+                    <button class="pay-tab-btn" data-pay-method="Credit Card">💳 Credit Card</button>
+                    <button class="pay-tab-btn" data-pay-method="Cash">💵 Cash</button>
+                </div>
+
+                <!-- Form Panel: UPI -->
+                <div class="payment-method-panel active" id="pay-panel-UPI">
+                    <div class="form-group">
+                        <label for="demo-upi-id" class="form-label">Enter Virtual Payment Address (UPI ID)</label>
+                        <input type="text" id="demo-upi-id" class="form-control" placeholder="e.g. user@okhdfcbank or yourname@paytm" value="user@okhdfcbank">
+                        <div class="form-hint">Accepted apps: Google Pay, PhonePe, Paytm, BHIM.</div>
+                    </div>
+                </div>
+
+                <!-- Form Panel: Cards (Debit / Credit) -->
+                <div class="payment-method-panel" id="pay-panel-Card">
+                    <div class="form-group">
+                        <label for="demo-card-name" class="form-label">Cardholder Name</label>
+                        <input type="text" id="demo-card-name" class="form-control" placeholder="e.g. John Fernandes" value="Demo Cardholder">
+                    </div>
+                    <div class="form-group">
+                        <label for="demo-card-number" class="form-label">Dummy Card Number</label>
+                        <input type="text" id="demo-card-number" class="form-control" placeholder="4532 •••• •••• 8899" value="4532 0000 0000 8899" maxlength="19">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group">
+                            <label for="demo-card-exp" class="form-label">Expiry (MM/YY)</label>
+                            <input type="text" id="demo-card-exp" class="form-control" placeholder="12/28" value="12/28" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="demo-card-cvv" class="form-label">Demo CVV</label>
+                            <input type="password" id="demo-card-cvv" class="form-control" placeholder="•••" value="123" maxlength="4">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Panel: Cash -->
+                <div class="payment-method-panel" id="pay-panel-Cash">
+                    <div style="text-align: center; padding: 18px 10px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 6px;">💵</div>
+                        <h4 style="font-weight: 700;">Pay at Parking Counter</h4>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 4px;">Confirm now to reserve your slot. Hand over the cash at the facility entrance desk.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('paymentModal')">Cancel</button>
+                <button class="btn btn-primary" id="confirm-payment-btn">
+                    🔒 Pay ₹<span id="modal-btn-amount">1,500</span> & Activate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         PRINTABLE PAYMENT RECEIPT MODAL
+         ==================================================================== -->
+    <div class="modal-backdrop" id="receiptModal">
+        <div class="modal-dialog" style="max-width: 580px;">
+            <div class="modal-header">
+                <h3 class="modal-title">🧾 Parking Payment Receipt</h3>
+                <button class="modal-close" onclick="closeModal('receiptModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="printable-receipt" id="printable-receipt-content">
+                    <div class="receipt-watermark">PAID</div>
+                    
+                    <div class="receipt-header">
+                        <div style="font-size: 1.6rem; margin-bottom: 2px;">🅿️</div>
+                        <div class="receipt-title">PARKING MANAGEMENT SYSTEM</div>
+                        <div class="receipt-subtitle">Official Payment Receipt & Tax Invoice</div>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Payment ID</div>
+                            <div class="detail-value" style="color: var(--primary-dark);" id="rcpt-pay-id">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Subscription ID</div>
+                            <div class="detail-value" id="rcpt-sub-id">--</div>
+                        </div>
+                        <div class="detail-item full-width">
+                            <div class="detail-label">Customer / Owner Name</div>
+                            <div class="detail-value" id="rcpt-owner">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Vehicle Number</div>
+                            <div class="detail-value" id="rcpt-veh-no">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Vehicle Type</div>
+                            <div class="detail-value" id="rcpt-veh-type">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Assigned Slot</div>
+                            <div class="detail-value" style="color: var(--primary); font-size: 1.1rem;" id="rcpt-slot">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Plan Selected</div>
+                            <div class="detail-value" id="rcpt-plan">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Start Date</div>
+                            <div class="detail-value" id="rcpt-start">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Expiry Date</div>
+                            <div class="detail-value" style="color: var(--danger-text);" id="rcpt-end">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Payment Method</div>
+                            <div class="detail-value" id="rcpt-method">--</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Payment Status</div>
+                            <div class="detail-value"><span class="badge badge-success">✓ Successful</span></div>
+                        </div>
+                        <div class="detail-item full-width" style="background: var(--primary-light); border-color: #bfdbfe;">
+                            <div class="detail-label" style="color: var(--primary-dark);">Total Amount Paid</div>
+                            <div class="detail-value" style="font-size: 1.4rem; color: var(--primary-dark);" id="rcpt-amount">--</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 14px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+                        Generated on <span id="rcpt-timestamp">--</span> • Valid across all facility gates.
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('receiptModal')">Close</button>
+                <button class="btn btn-primary" onclick="window.print()">
+                    🖨️ Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ====================================================================
          SLOT DETAILS MODAL
@@ -450,89 +740,28 @@
     </div>
 
     <!-- ====================================================================
-         RELEASE VEHICLE CONFIRMATION MODAL
+         CANCEL SUBSCRIPTION CONFIRMATION MODAL
          ==================================================================== -->
-    <div class="modal-backdrop" id="releaseConfirmModal">
+    <div class="modal-backdrop" id="cancelSubModal">
         <div class="modal-dialog">
             <div class="modal-header">
-                <h3 class="modal-title">Release Vehicle</h3>
-                <button class="modal-close" onclick="closeModal('releaseConfirmModal')">&times;</button>
+                <h3 class="modal-title">Cancel Subscription</h3>
+                <button class="modal-close" onclick="closeModal('cancelSubModal')">&times;</button>
             </div>
-            <div class="modal-body" id="modal-release-body">
-                <p style="margin-bottom: 15px; color: var(--text-muted);">Are you sure you want to release this vehicle from its parking slot?</p>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Vehicle Number</div>
-                        <div class="detail-value" id="release-modal-veh-no">--</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Slot ID</div>
-                        <div class="detail-value" id="release-modal-slot-id">--</div>
-                    </div>
-                    <div class="detail-item full-width">
-                        <div class="detail-label">Owner Name</div>
-                        <div class="detail-value" id="release-modal-owner">--</div>
-                    </div>
-                    <div class="detail-item full-width">
-                        <div class="detail-label">Parked Since</div>
-                        <div class="detail-value" id="release-modal-time">--</div>
-                    </div>
-                </div>
+            <div class="modal-body">
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                    Are you sure you want to cancel subscription <strong id="cancel-sub-id-display">--</strong>?
+                    Cancelling will immediately release and free up the assigned parking slot.
+                </p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('releaseConfirmModal')">Cancel</button>
-                <button class="btn btn-danger" id="confirm-release-btn">Yes, Release Vehicle</button>
+                <button class="btn btn-outline" onclick="closeModal('cancelSubModal')">Keep Active</button>
+                <button class="btn btn-danger" id="confirm-cancel-sub-btn">Confirm Cancellation</button>
             </div>
         </div>
     </div>
 
-    <!-- ====================================================================
-         PARKING SUCCESS RECEIPT MODAL
-         ==================================================================== -->
-    <div class="modal-backdrop" id="receiptModal">
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h3 class="modal-title">🚗 Parking Receipt</h3>
-                <button class="modal-close" onclick="closeModal('receiptModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="modal-receipt-body">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 3rem;">✅</div>
-                    <h3 style="color: var(--success); font-weight: 800; margin-top: 6px;">Vehicle Parked Successfully!</h3>
-                    <p style="font-size: 0.88rem; color: var(--text-muted);">Please retain this receipt for your records.</p>
-                </div>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Slot Allocated</div>
-                        <div class="detail-value" style="color: var(--primary);" id="receipt-slot-id">--</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Vehicle Type</div>
-                        <div class="detail-value" id="receipt-type">--</div>
-                    </div>
-                    <div class="detail-item full-width">
-                        <div class="detail-label">Vehicle Number</div>
-                        <div class="detail-value" id="receipt-veh-no">--</div>
-                    </div>
-                    <div class="detail-item full-width">
-                        <div class="detail-label">Owner Name</div>
-                        <div class="detail-value" id="receipt-owner">--</div>
-                    </div>
-                    <div class="detail-item full-width">
-                        <div class="detail-label">Check-in Timestamp</div>
-                        <div class="detail-value" id="receipt-time">--</div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal('receiptModal')">Done</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====================================================================
-         TOAST NOTIFICATIONS CONTAINER
-         ==================================================================== -->
+    <!-- Toast Notifications -->
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- ====================================================================
@@ -540,7 +769,7 @@
          ==================================================================== -->
     <footer class="footer">
         <div class="container">
-            <p><strong>ParkEase</strong> — Smart Parking Management System &copy; 2026. All rights reserved.</p>
+            <p><strong>ParkEase</strong> — Smart Parking & Monthly Subscriptions &copy; 2026. All rights reserved.</p>
             <p style="font-size: 0.82rem; margin-top: 4px;">Crafted with HTML5, CSS3, & Vanilla JavaScript (LocalStorage Powered)</p>
         </div>
     </footer>

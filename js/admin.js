@@ -1,9 +1,9 @@
 /**
  * ====================================================================
- * PARK EASE - ADMIN DASHBOARD SCRIPT (admin.js)
+ * PARK EASE - ADMIN DASHBOARD SCRIPT (ENHANCED admin.js)
  * ====================================================================
- * Handles admin authentication, slot CRUD management, status toggling,
- * vehicle release, historical log management, and system data resets.
+ * Handles admin authentication, slot CRUD, monthly subscriptions,
+ * payment logs, pure CSS/JS revenue analytics, and plan pricing config.
  * 
  * Written in simple, clean Vanilla JavaScript with beginner-friendly comments.
  */
@@ -14,15 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let pendingAdminAction = null;
 
-/**
- * Initialize Admin App
- */
 function initAdmin() {
     checkAuthState();
     setupAdminNavigation();
     setupAdminEventListeners();
 
-    // Listen for storage events (e.g. if user parks/releases in another tab)
     window.addEventListener('pms-data-updated', () => {
         if (window.storage.isAdminLoggedIn()) {
             renderAdminDashboard();
@@ -67,17 +63,15 @@ function handleAdminLogin(e) {
     const password = passwordInput.value.trim();
 
     let isValid = true;
-
-    // Reset error styles
     document.querySelectorAll('#admin-login-view .form-text-error').forEach(el => el.classList.remove('show'));
     document.querySelectorAll('#admin-login-view .form-control').forEach(el => el.classList.remove('is-invalid'));
 
     if (!username) {
-        showFieldError('admin-username', 'error-admin-username', 'Please enter your username.');
+        showFieldError('admin-username', 'error-admin-username', 'Please enter username.');
         isValid = false;
     }
     if (!password) {
-        showFieldError('admin-password', 'error-admin-password', 'Please enter your password.');
+        showFieldError('admin-password', 'error-admin-password', 'Please enter password.');
         isValid = false;
     }
 
@@ -100,7 +94,7 @@ function handleAdminLogout() {
 }
 
 // ====================================================================
-// ADMIN NAVIGATION & TABS
+// ADMIN NAVIGATION
 // ====================================================================
 
 function setupAdminNavigation() {
@@ -112,7 +106,6 @@ function setupAdminNavigation() {
         });
     });
 
-    // Mobile sidebar toggle
     const menuToggle = document.getElementById('adminMenuToggle');
     const sidebar = document.getElementById('adminSidebar');
     if (menuToggle && sidebar) {
@@ -127,7 +120,6 @@ function switchAdminTab(tabName) {
     const contents = document.querySelectorAll('.admin-tab-content');
     const titleEl = document.getElementById('admin-current-page-title');
 
-    // Update active nav link
     links.forEach(link => {
         if (link.getAttribute('data-admin-tab') === tabName) {
             link.classList.add('active');
@@ -136,7 +128,6 @@ function switchAdminTab(tabName) {
         }
     });
 
-    // Hide all tab contents and show selected
     contents.forEach(content => {
         content.style.display = 'none';
         content.classList.remove('active');
@@ -148,52 +139,56 @@ function switchAdminTab(tabName) {
         targetTab.classList.add('active');
     }
 
-    // Set page title
     const titles = {
         overview: 'Dashboard Overview',
-        slots: 'Slot Management',
-        vehicles: 'Parked Vehicles Management',
-        history: 'Parking History & Audit Logs',
-        settings: 'System Settings'
+        slots: 'Parking Slots Management',
+        vehicles: 'Currently Parked Vehicles',
+        subscriptions: 'Monthly Subscriptions',
+        payments: 'Payment Ledger',
+        revenue: 'Revenue & Financial Analytics',
+        history: 'Parking History Logs',
+        settings: 'System Settings & Pricing'
     };
     if (titleEl && titles[tabName]) {
         titleEl.textContent = titles[tabName];
     }
 
-    // Close sidebar on mobile
     const sidebar = document.getElementById('adminSidebar');
     if (sidebar && window.innerWidth <= 992) {
         sidebar.classList.remove('open');
     }
 
-    // Refresh data
     renderAdminDashboard();
 }
 
 // ====================================================================
-// ADMIN DASHBOARD RENDERING
+// DASHBOARD RENDERING
 // ====================================================================
 
 function renderAdminDashboard() {
-    renderAdminStats();
+    renderAdminOverviewStats();
     renderAdminOverviewGrid();
     renderAdminSlotsTable();
     renderAdminVehiclesTable();
+    renderAdminSubscriptionsTable();
+    renderAdminPaymentsTable();
+    renderRevenueAnalytics();
     renderAdminHistoryTable();
+    renderPlanPricingEditor();
 }
 
-function renderAdminStats() {
+function renderAdminOverviewStats() {
     const stats = window.storage.getStats();
 
-    const totalEl = document.getElementById('adm-stat-total');
-    const availEl = document.getElementById('adm-stat-avail');
-    const occEl = document.getElementById('adm-stat-occ');
-    const disEl = document.getElementById('adm-stat-dis');
+    const revEl = document.getElementById('adm-stat-revenue');
+    const mRevEl = document.getElementById('adm-stat-month-revenue');
+    const subsEl = document.getElementById('adm-stat-active-subs');
+    const slotsEl = document.getElementById('adm-stat-slots-occ');
 
-    if (totalEl) totalEl.textContent = stats.totalSlots;
-    if (availEl) availEl.textContent = stats.availableSlots;
-    if (occEl) occEl.textContent = stats.occupiedSlots;
-    if (disEl) disEl.textContent = stats.disabledSlots;
+    if (revEl) revEl.textContent = window.storage.formatCurrency(stats.totalRevenue);
+    if (mRevEl) mRevEl.textContent = window.storage.formatCurrency(stats.thisMonthRevenue);
+    if (subsEl) subsEl.textContent = stats.activeSubscriptions;
+    if (slotsEl) slotsEl.textContent = `${stats.occupiedSlots} / ${stats.totalSlots}`;
 }
 
 function getVehicleIcon(type) {
@@ -215,8 +210,10 @@ function renderAdminOverviewGrid() {
     grid.innerHTML = slots.map(slot => {
         const isOcc = slot.status === 'occupied';
         const isDis = slot.status === 'disabled';
+        const isSub = !!slot.subscriptionId;
+
         let badgeClass = isOcc ? 'occupied' : (isDis ? 'disabled' : 'available');
-        let badgeText = isOcc ? 'Occupied' : (isDis ? 'Disabled' : 'Available');
+        let badgeText = isOcc ? (isSub ? 'Pass Holder' : 'Occupied') : (isDis ? 'Disabled' : 'Available');
         let icon = isDis ? '🚫' : getVehicleIcon(slot.type);
 
         return `
@@ -245,7 +242,7 @@ function renderAdminOverviewGrid() {
                         </button>
                     ` : `
                         <button class="btn btn-sm ${isDis ? 'btn-success' : 'btn-outline'}" onclick="toggleSlotStatus('${slot.id}')">
-                            ${isDis ? '✅ Enable' : '🛠️ Disable'}
+                            ${isDis ? 'Enable' : 'Disable'}
                         </button>
                     `}
                 </div>
@@ -255,7 +252,7 @@ function renderAdminOverviewGrid() {
 }
 
 // ====================================================================
-// SLOT MANAGEMENT
+// SLOTS MANAGEMENT
 // ====================================================================
 
 function renderAdminSlotsTable() {
@@ -290,7 +287,7 @@ function renderAdminSlotsTable() {
         const isDis = slot.status === 'disabled';
 
         let badge = '<span class="badge badge-success">Available</span>';
-        if (isOcc) badge = '<span class="badge badge-danger">Occupied</span>';
+        if (isOcc) badge = `<span class="badge badge-danger">Occupied ${slot.subscriptionId ? '(Pass)' : ''}</span>`;
         if (isDis) badge = '<span class="badge badge-secondary">Disabled</span>';
 
         return `
@@ -300,15 +297,15 @@ function renderAdminSlotsTable() {
                 <td>${getVehicleIcon(slot.type)} ${slot.type}</td>
                 <td>${badge}</td>
                 <td>
-                    ${isOcc ? `<strong>${slot.vehicleNumber}</strong> (${slot.ownerName})` : '<span style="color: var(--text-muted);">None</span>'}
+                    ${isOcc ? `<strong>${slot.vehicleNumber}</strong> (${slot.ownerName || 'User'})` : '<span style="color: var(--text-muted);">None</span>'}
                 </td>
                 <td style="text-align: right;">
                     <div style="display: inline-flex; gap: 6px;">
                         ${!isOcc ? `
-                            <button class="btn btn-sm btn-outline" onclick="toggleSlotStatus('${slot.id}')" title="Toggle Active / Maintenance">
+                            <button class="btn btn-sm btn-outline" onclick="toggleSlotStatus('${slot.id}')">
                                 ${isDis ? 'Enable' : 'Disable'}
                             </button>
-                            <button class="btn btn-sm btn-danger" onclick="confirmDeleteSlot('${slot.id}')" title="Delete Slot">
+                            <button class="btn btn-sm btn-danger" onclick="confirmDeleteSlot('${slot.id}')">
                                 🗑️
                             </button>
                         ` : `
@@ -396,7 +393,7 @@ function confirmDeleteSlot(slotId) {
     }
 
     document.getElementById('adm-confirm-title').textContent = `Delete Slot ${slot.id}`;
-    document.getElementById('adm-confirm-message').textContent = `Are you sure you want to permanently remove parking slot ${slot.id}? This action cannot be undone.`;
+    document.getElementById('adm-confirm-message').textContent = `Are you sure you want to permanently remove parking slot ${slot.id}?`;
 
     pendingAdminAction = () => {
         const result = window.storage.deleteSlot(slot.id);
@@ -446,7 +443,7 @@ function renderAdminVehiclesTable() {
             <td><strong style="color: var(--primary-dark); font-size: 0.98rem;">${s.vehicleNumber}</strong></td>
             <td>${s.ownerName || 'Unknown'}</td>
             <td><span class="badge badge-primary">${getVehicleIcon(s.type)} ${s.type}</span></td>
-            <td>📍 ${s.floor}</td>
+            <td><span class="badge ${s.subscriptionId ? 'badge-primary' : 'badge-secondary'}">${s.subscriptionId ? 'Monthly Pass' : 'Daily Ticket'}</span></td>
             <td><small>${window.storage.formatDateTime(s.parkedAt)}</small></td>
             <td style="text-align: right;">
                 <button class="btn btn-sm btn-danger" onclick="confirmAdminReleaseVehicle('${s.id}')">
@@ -462,7 +459,7 @@ function confirmAdminReleaseVehicle(slotId) {
     if (!slot || slot.status !== 'occupied') return;
 
     document.getElementById('adm-confirm-title').textContent = `Release Vehicle (${slot.vehicleNumber})`;
-    document.getElementById('adm-confirm-message').textContent = `Are you sure you want to release vehicle "${slot.vehicleNumber}" from Slot ${slot.id}? It will be logged to parking history under Admin release.`;
+    document.getElementById('adm-confirm-message').textContent = `Release vehicle "${slot.vehicleNumber}" from Slot ${slot.id}? It will be logged to parking history under Admin release.`;
 
     pendingAdminAction = () => {
         const result = window.storage.releaseVehicle(slot.id, 'Admin');
@@ -475,6 +472,353 @@ function confirmAdminReleaseVehicle(slotId) {
     };
 
     openModal('adminConfirmModal');
+}
+
+// ====================================================================
+// MONTHLY SUBSCRIPTIONS MANAGEMENT
+// ====================================================================
+
+function renderAdminSubscriptionsTable() {
+    const tbody = document.getElementById('adm-subscriptions-tbody');
+    const emptyMsg = document.getElementById('adm-no-subs-msg');
+    if (!tbody) return;
+
+    const searchVal = (document.getElementById('adm-sub-search')?.value || '').trim().toLowerCase();
+    const statusFilter = document.getElementById('adm-sub-status-filter')?.value || 'ALL';
+
+    let subs = window.storage.getSubscriptions();
+
+    if (searchVal) {
+        subs = subs.filter(s => 
+            s.subscriptionId.toLowerCase().includes(searchVal) ||
+            s.ownerName.toLowerCase().includes(searchVal) ||
+            s.vehicleNumber.toLowerCase().includes(searchVal) ||
+            s.parkingSlot.toLowerCase().includes(searchVal)
+        );
+    }
+
+    if (statusFilter !== 'ALL') {
+        subs = subs.filter(s => s.status === statusFilter);
+    }
+
+    if (subs.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyMsg) emptyMsg.style.display = 'block';
+        return;
+    }
+
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    tbody.innerHTML = subs.map(sub => {
+        let badgeClass = 'badge-active';
+        if (sub.status === 'Expiring Soon') badgeClass = 'badge-expiring';
+        if (sub.status === 'Expired') badgeClass = 'badge-expired';
+        if (sub.status === 'Cancelled') badgeClass = 'badge-cancelled';
+
+        return `
+            <tr>
+                <td><strong style="color: var(--primary-dark); font-family: monospace;">${sub.subscriptionId}</strong></td>
+                <td><strong>${sub.ownerName}</strong></td>
+                <td>${sub.vehicleNumber}</td>
+                <td><span class="badge badge-primary">🅿️ ${sub.parkingSlot}</span></td>
+                <td>${sub.plan}</td>
+                <td><strong>${window.storage.formatCurrency(sub.amount)}</strong></td>
+                <td><small>${window.storage.formatDateOnly(sub.startDate)}</small></td>
+                <td><small>${window.storage.formatDateOnly(sub.endDate)}</small></td>
+                <td><span class="badge ${badgeClass}">${sub.status}</span></td>
+                <td style="text-align: right;">
+                    <div style="display: inline-flex; gap: 6px;">
+                        ${sub.status !== 'Cancelled' ? `
+                            <button class="btn btn-sm btn-primary" onclick="adminRenewSub('${sub.subscriptionId}')" title="Renew 30 Days">
+                                🔄 Renew
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="adminCancelSub('${sub.subscriptionId}')" title="Cancel Pass">
+                                ✕ Cancel
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-outline" onclick="openAdminReceiptFromSub('${sub.subscriptionId}')" title="View Receipt">
+                            🧾
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function adminRenewSub(subId) {
+    document.getElementById('adm-confirm-title').textContent = `Renew Subscription ${subId}`;
+    document.getElementById('adm-confirm-message').textContent = `Renew this subscription for an additional 30 days? A payment record will be logged.`;
+
+    pendingAdminAction = () => {
+        const result = window.storage.renewSubscription(subId, 'Admin Override (Cash)');
+        if (result.success) {
+            showAdminToast(result.message, 'success');
+            renderAdminDashboard();
+        } else {
+            showAdminToast(result.message, 'error');
+        }
+    };
+
+    openModal('adminConfirmModal');
+}
+
+function adminCancelSub(subId) {
+    document.getElementById('adm-confirm-title').textContent = `Cancel Subscription ${subId}`;
+    document.getElementById('adm-confirm-message').textContent = `Cancel this subscription? The allocated parking slot will be immediately released.`;
+
+    pendingAdminAction = () => {
+        const result = window.storage.cancelSubscription(subId, 'Admin');
+        if (result.success) {
+            showAdminToast(result.message, 'success');
+            renderAdminDashboard();
+        } else {
+            showAdminToast(result.message, 'error');
+        }
+    };
+
+    openModal('adminConfirmModal');
+}
+
+// ====================================================================
+// PAYMENTS LEDGER
+// ====================================================================
+
+function renderAdminPaymentsTable() {
+    const tbody = document.getElementById('adm-payments-tbody');
+    const emptyMsg = document.getElementById('adm-no-pays-msg');
+    if (!tbody) return;
+
+    const searchVal = (document.getElementById('adm-pay-search')?.value || '').trim().toLowerCase();
+    const methodFilter = document.getElementById('adm-pay-method-filter')?.value || 'ALL';
+
+    let payments = window.storage.getPayments();
+
+    if (searchVal) {
+        payments = payments.filter(p => 
+            p.paymentId.toLowerCase().includes(searchVal) ||
+            p.subscriptionId.toLowerCase().includes(searchVal) ||
+            p.ownerName.toLowerCase().includes(searchVal) ||
+            p.vehicleNumber.toLowerCase().includes(searchVal) ||
+            p.parkingSlot.toLowerCase().includes(searchVal)
+        );
+    }
+
+    if (methodFilter !== 'ALL') {
+        payments = payments.filter(p => p.paymentMethod === methodFilter);
+    }
+
+    if (payments.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyMsg) emptyMsg.style.display = 'block';
+        return;
+    }
+
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    tbody.innerHTML = payments.map(pay => `
+        <tr>
+            <td><strong style="color: var(--primary-dark); font-family: monospace;">${pay.paymentId}</strong></td>
+            <td><small style="font-family: monospace;">${pay.subscriptionId}</small></td>
+            <td><strong>${pay.ownerName}</strong></td>
+            <td>${pay.vehicleNumber}</td>
+            <td><span class="badge badge-primary">🅿️ ${pay.parkingSlot}</span></td>
+            <td>${pay.plan}</td>
+            <td><strong style="color: var(--success-text);">${window.storage.formatCurrency(pay.amount)}</strong></td>
+            <td><span class="badge badge-secondary">${pay.paymentMethod}</span></td>
+            <td><small>${window.storage.formatDateOnly(pay.paymentDate)}</small></td>
+            <td><span class="badge badge-success">✓ ${pay.status}</span></td>
+            <td style="text-align: right;">
+                <button class="btn btn-sm btn-outline" onclick="openAdminReceiptModal('${pay.paymentId}')">
+                    🧾 View Receipt
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// ====================================================================
+// REVENUE ANALYTICS & PURE CSS BAR CHART
+// ====================================================================
+
+function renderRevenueAnalytics() {
+    const rev = window.storage.getRevenueMetrics();
+
+    document.getElementById('rev-stat-today').textContent = window.storage.formatCurrency(rev.todayRevenue);
+    document.getElementById('rev-stat-month').textContent = window.storage.formatCurrency(rev.thisMonthRevenue);
+    document.getElementById('rev-stat-total').textContent = window.storage.formatCurrency(rev.totalRevenue);
+    document.getElementById('rev-stat-paid-count').textContent = rev.totalPayments;
+
+    // Render Pure CSS Bar Chart
+    const chartEl = document.getElementById('revenue-bar-chart');
+    if (chartEl) {
+        const trendKeys = Object.keys(rev.monthlyTrend);
+        if (trendKeys.length === 0) {
+            chartEl.innerHTML = '<p class="text-muted" style="width: 100%; text-align: center;">No revenue data recorded yet.</p>';
+        } else {
+            const maxVal = Math.max(...Object.values(rev.monthlyTrend), 1000);
+            chartEl.innerHTML = trendKeys.map(k => {
+                const val = rev.monthlyTrend[k];
+                const heightPercent = Math.max(10, Math.min(100, Math.round((val / maxVal) * 100)));
+                return `
+                    <div class="chart-bar-group">
+                        <div class="chart-bar-val">${window.storage.formatCurrency(val)}</div>
+                        <div class="chart-bar" style="height: ${heightPercent}%;"></div>
+                        <div class="chart-bar-label">${k}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    // Render Methods Breakdown Grid
+    const methodsGrid = document.getElementById('revenue-methods-grid');
+    if (methodsGrid) {
+        methodsGrid.innerHTML = Object.entries(rev.methodBreakdown).map(([method, amount]) => `
+            <div style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 14px; border-radius: var(--radius-md);">
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">${method}</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); margin-top: 4px;">${window.storage.formatCurrency(amount)}</div>
+            </div>
+        `).join('');
+    }
+}
+
+// ====================================================================
+// SETTINGS & PLAN PRICING EDITOR
+// ====================================================================
+
+function renderPlanPricingEditor() {
+    const editor = document.getElementById('admin-plan-pricing-editor');
+    if (!editor) return;
+
+    const plans = window.storage.getPlans();
+    editor.innerHTML = plans.map(p => `
+        <div style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius-md);">
+            <div style="font-size: 1.5rem; margin-bottom: 4px;">${p.icon || '🅿️'}</div>
+            <div style="font-weight: 700; color: var(--text-main);">${p.name}</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">Type: ${p.vehicleType}</div>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.8rem;">Price (₹ / Month)</label>
+                <input type="number" id="price-input-${p.id}" class="form-control" value="${p.price}" min="100" step="50">
+            </div>
+
+            <button class="btn btn-sm btn-primary" onclick="savePlanPrice('${p.id}')" style="width: 100%;">
+                Save Price
+            </button>
+        </div>
+    `).join('');
+}
+
+function savePlanPrice(planId) {
+    const input = document.getElementById(`price-input-${planId}`);
+    if (!input) return;
+
+    const newPrice = Number(input.value);
+    if (!newPrice || newPrice <= 0) {
+        showAdminToast('Please enter a valid price.', 'error');
+        return;
+    }
+
+    const result = window.storage.updatePlanPrice(planId, newPrice);
+    if (result.success) {
+        showAdminToast(result.message, 'success');
+        renderAdminDashboard();
+    } else {
+        showAdminToast(result.message, 'error');
+    }
+}
+
+// ====================================================================
+// RECEIPT MODAL (ADMIN)
+// ====================================================================
+
+function openAdminReceiptModal(payId) {
+    const payment = window.storage.getPaymentById(payId);
+    if (!payment) return;
+
+    const sub = window.storage.getSubscriptionById(payment.subscriptionId) || {
+        subscriptionId: payment.subscriptionId,
+        ownerName: payment.ownerName,
+        vehicleNumber: payment.vehicleNumber,
+        vehicleType: 'Vehicle',
+        parkingSlot: payment.parkingSlot,
+        plan: payment.plan,
+        startDate: payment.paymentDate,
+        endDate: '+30 Days'
+    };
+
+    renderAdminReceiptContent(payment, sub);
+    openModal('adminReceiptModal');
+}
+
+function openAdminReceiptFromSub(subId) {
+    const sub = window.storage.getSubscriptionById(subId);
+    if (!sub) return;
+
+    const payments = window.storage.getPayments();
+    const payment = payments.find(p => p.subscriptionId === sub.subscriptionId) || {
+        paymentId: 'PAY-RECORD',
+        amount: sub.amount,
+        paymentMethod: 'UPI',
+        paymentDate: sub.startDate
+    };
+
+    renderAdminReceiptContent(payment, sub);
+    openModal('adminReceiptModal');
+}
+
+function renderAdminReceiptContent(payment, sub) {
+    const container = document.getElementById('admin-receipt-content');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="receipt-watermark">PAID</div>
+        <div class="receipt-header">
+            <div style="font-size: 1.6rem; margin-bottom: 2px;">🅿️</div>
+            <div class="receipt-title">PARKING MANAGEMENT SYSTEM</div>
+            <div class="receipt-subtitle">Official Payment Receipt & Tax Invoice</div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Payment ID</div>
+                <div class="detail-value" style="color: var(--primary-dark);">${payment.paymentId}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Subscription ID</div>
+                <div class="detail-value">${sub.subscriptionId || payment.subscriptionId}</div>
+            </div>
+            <div class="detail-item full-width">
+                <div class="detail-label">Customer / Owner</div>
+                <div class="detail-value">${payment.ownerName || sub.ownerName}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Vehicle Number</div>
+                <div class="detail-value">${payment.vehicleNumber || sub.vehicleNumber}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Assigned Slot</div>
+                <div class="detail-value" style="color: var(--primary); font-size: 1.1rem;">${payment.parkingSlot || sub.parkingSlot}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Plan</div>
+                <div class="detail-value">${payment.plan || sub.plan}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Payment Method</div>
+                <div class="detail-value">${payment.paymentMethod || 'UPI'}</div>
+            </div>
+            <div class="detail-item full-width" style="background: var(--primary-light); border-color: #bfdbfe;">
+                <div class="detail-label" style="color: var(--primary-dark);">Amount Paid</div>
+                <div class="detail-value" style="font-size: 1.4rem; color: var(--primary-dark);">${window.storage.formatCurrency(payment.amount)}</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 14px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+            Generated on ${new Date().toLocaleString()} • Authorized Receipt.
+        </div>
+    `;
 }
 
 // ====================================================================
@@ -522,29 +866,25 @@ function renderAdminHistoryTable() {
 }
 
 function confirmClearHistory() {
-    document.getElementById('adm-confirm-title').textContent = 'Clear All Parking History';
-    document.getElementById('adm-confirm-message').textContent = 'Are you sure you want to permanently erase all past parking history logs? This action cannot be reversed.';
+    document.getElementById('adm-confirm-title').textContent = 'Clear All History';
+    document.getElementById('adm-confirm-message').textContent = 'Are you sure you want to permanently erase all past exit history logs?';
 
     pendingAdminAction = () => {
         window.storage.clearHistory();
-        showAdminToast('All parking history logs have been cleared.', 'info');
+        showAdminToast('All parking history logs cleared.', 'info');
         renderAdminDashboard();
     };
 
     openModal('adminConfirmModal');
 }
 
-// ====================================================================
-// SETTINGS & SYSTEM RESET
-// ====================================================================
-
 function confirmResetSystemData() {
-    document.getElementById('adm-confirm-title').textContent = 'Restore Sample Data';
-    document.getElementById('adm-confirm-message').textContent = 'Are you sure you want to reset all slots, vehicles, and history back to initial factory demo values?';
+    document.getElementById('adm-confirm-title').textContent = 'Restore Sample Dataset';
+    document.getElementById('adm-confirm-message').textContent = 'Reset all slots, subscriptions, payments, and history to factory sample values?';
 
     pendingAdminAction = () => {
         window.storage.resetToDefaultData();
-        showAdminToast('System successfully restored to default sample data.', 'success');
+        showAdminToast('System restored to default sample data.', 'success');
         renderAdminDashboard();
     };
 
@@ -581,11 +921,7 @@ function showAdminToast(message, type = 'info') {
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-
-    let icon = 'ℹ️';
-    if (type === 'success') icon = '✅';
-    if (type === 'error') icon = '❌';
-    if (type === 'warning') icon = '⚠️';
+    let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
 
     toast.innerHTML = `
         <div class="toast-icon">${icon}</div>
@@ -593,7 +929,6 @@ function showAdminToast(message, type = 'info') {
     `;
 
     container.appendChild(toast);
-
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
@@ -602,45 +937,46 @@ function showAdminToast(message, type = 'info') {
 }
 
 // ====================================================================
-// EVENT LISTENERS BINDINGS
+// EVENT LISTENERS
 // ====================================================================
 
 function setupAdminEventListeners() {
-    // Login form
     const loginForm = document.getElementById('admin-login-form');
     if (loginForm) loginForm.addEventListener('submit', handleAdminLogin);
 
-    // Logout
     const logoutBtn = document.getElementById('admin-logout-btn');
     if (logoutBtn) logoutBtn.addEventListener('click', handleAdminLogout);
 
-    // Add slot form
     const addSlotForm = document.getElementById('add-slot-form');
     if (addSlotForm) addSlotForm.addEventListener('submit', handleAddSlotSubmit);
 
-    // Slot table search and filter
     const slotSearch = document.getElementById('adm-slot-search');
     const slotTypeFilter = document.getElementById('adm-slot-filter-type');
     if (slotSearch) slotSearch.addEventListener('input', renderAdminSlotsTable);
     if (slotTypeFilter) slotTypeFilter.addEventListener('change', renderAdminSlotsTable);
 
-    // Vehicle search
     const vehSearch = document.getElementById('adm-vehicle-search');
     if (vehSearch) vehSearch.addEventListener('input', renderAdminVehiclesTable);
 
-    // History search
+    const subSearch = document.getElementById('adm-sub-search');
+    const subStatusFilter = document.getElementById('adm-sub-status-filter');
+    if (subSearch) subSearch.addEventListener('input', renderAdminSubscriptionsTable);
+    if (subStatusFilter) subStatusFilter.addEventListener('change', renderAdminSubscriptionsTable);
+
+    const paySearch = document.getElementById('adm-pay-search');
+    const payMethodFilter = document.getElementById('adm-pay-method-filter');
+    if (paySearch) paySearch.addEventListener('input', renderAdminPaymentsTable);
+    if (payMethodFilter) payMethodFilter.addEventListener('change', renderAdminPaymentsTable);
+
     const histSearch = document.getElementById('adm-history-search');
     if (histSearch) histSearch.addEventListener('input', renderAdminHistoryTable);
 
-    // Clear history button
     const clearHistBtn = document.getElementById('clear-history-btn');
     if (clearHistBtn) clearHistBtn.addEventListener('click', confirmClearHistory);
 
-    // Reset system data
     const resetDataBtn = document.getElementById('reset-system-data-btn');
     if (resetDataBtn) resetDataBtn.addEventListener('click', confirmResetSystemData);
 
-    // Action confirmation button
     const confirmActionBtn = document.getElementById('adm-confirm-btn');
     if (confirmActionBtn) {
         confirmActionBtn.addEventListener('click', () => {
@@ -652,7 +988,6 @@ function setupAdminEventListeners() {
         });
     }
 
-    // Modal backdrop dismissal
     document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
         backdrop.addEventListener('click', (e) => {
             if (e.target === backdrop) {
