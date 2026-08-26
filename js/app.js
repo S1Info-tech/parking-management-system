@@ -861,6 +861,8 @@ function showReceiptModal(payment, sub) {
     document.getElementById('rcpt-veh-type').textContent = sub.vehicleType || '4-Wheeler';
     document.getElementById('rcpt-slot').textContent = payment.parkingSlot || sub.parkingSlot;
     document.getElementById('rcpt-plan').textContent = payment.plan || sub.plan;
+    const rcptDate = document.getElementById('rcpt-date');
+    if (rcptDate) rcptDate.textContent = window.storage.formatDateOnly(payment.paymentDate || sub.startDate);
     document.getElementById('rcpt-start').textContent = window.storage.formatDateOnly(sub.startDate || payment.paymentDate);
     document.getElementById('rcpt-end').textContent = window.storage.formatDateOnly(sub.endDate || '--');
     document.getElementById('rcpt-method').textContent = payment.paymentMethod || 'UPI';

@@ -1131,11 +1131,12 @@ img, svg {
         visibility: hidden;
     }
 
-    #receiptModal, #receiptModal * {
+    #receiptModal, #receiptModal *,
+    #adminReceiptModal, #adminReceiptModal * {
         visibility: visible;
     }
 
-    #receiptModal {
+    #receiptModal, #adminReceiptModal {
         position: absolute;
         left: 0;
         top: 0;
@@ -1146,7 +1147,8 @@ img, svg {
         padding: 0;
     }
 
-    #receiptModal .modal-dialog {
+    #receiptModal .modal-dialog,
+    #adminReceiptModal .modal-dialog {
         max-width: 100%;
         border: none;
         box-shadow: none;
@@ -1154,7 +1156,10 @@ img, svg {
 
     #receiptModal .modal-header,
     #receiptModal .modal-footer,
-    #receiptModal .modal-close {
+    #receiptModal .modal-close,
+    #adminReceiptModal .modal-header,
+    #adminReceiptModal .modal-footer,
+    #adminReceiptModal .modal-close {
         display: none !important;
     }
 

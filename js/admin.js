@@ -180,15 +180,25 @@ function renderAdminDashboard() {
 function renderAdminOverviewStats() {
     const stats = window.storage.getStats();
 
+    const totalSlotsEl = document.getElementById('adm-stat-total-slots');
+    const availSlotsEl = document.getElementById('adm-stat-avail-slots');
+    const occSlotsEl = document.getElementById('adm-stat-occ-slots');
+    const totalVehEl = document.getElementById('adm-stat-total-veh');
+    const activeSubsEl = document.getElementById('adm-stat-active-subs');
+    const expiredSubsEl = document.getElementById('adm-stat-expired-subs');
+    const totalPaymentsEl = document.getElementById('adm-stat-total-payments');
     const revEl = document.getElementById('adm-stat-revenue');
     const mRevEl = document.getElementById('adm-stat-month-revenue');
-    const subsEl = document.getElementById('adm-stat-active-subs');
-    const slotsEl = document.getElementById('adm-stat-slots-occ');
 
+    if (totalSlotsEl) totalSlotsEl.textContent = stats.totalSlots;
+    if (availSlotsEl) availSlotsEl.textContent = stats.availableSlots;
+    if (occSlotsEl) occSlotsEl.textContent = stats.occupiedSlots;
+    if (totalVehEl) totalVehEl.textContent = stats.totalVehicles;
+    if (activeSubsEl) activeSubsEl.textContent = stats.activeSubscriptions;
+    if (expiredSubsEl) expiredSubsEl.textContent = stats.expiredSubscriptions;
+    if (totalPaymentsEl) totalPaymentsEl.textContent = stats.totalPaymentsCount;
     if (revEl) revEl.textContent = window.storage.formatCurrency(stats.totalRevenue);
     if (mRevEl) mRevEl.textContent = window.storage.formatCurrency(stats.thisMonthRevenue);
-    if (subsEl) subsEl.textContent = stats.activeSubscriptions;
-    if (slotsEl) slotsEl.textContent = `${stats.occupiedSlots} / ${stats.totalSlots}`;
 }
 
 function getVehicleIcon(type) {
@@ -629,9 +639,17 @@ function renderAdminPaymentsTable() {
             <td><small>${window.storage.formatDateOnly(pay.paymentDate)}</small></td>
             <td><span class="badge badge-success">✓ ${pay.status}</span></td>
             <td style="text-align: right;">
-                <button class="btn btn-sm btn-outline" onclick="openAdminReceiptModal('${pay.paymentId}')">
-                    🧾 View Receipt
-                </button>
+                <div style="display: inline-flex; gap: 6px;">
+                    <button class="btn btn-sm btn-outline" onclick="openAdminReceiptModal('${pay.paymentId}')" title="View Receipt">
+                        🧾
+                    </button>
+                    <button class="btn btn-sm btn-primary" onclick="adminRenewSub('${pay.subscriptionId}')" title="Renew Subscription">
+                        🔄
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="adminCancelSub('${pay.subscriptionId}')" title="Cancel Subscription">
+                        ✕
+                    </button>
+                </div>
             </td>
         </tr>
     `).join('');
@@ -790,7 +808,7 @@ function renderAdminReceiptContent(payment, sub) {
                 <div class="detail-value">${sub.subscriptionId || payment.subscriptionId}</div>
             </div>
             <div class="detail-item full-width">
-                <div class="detail-label">Customer / Owner</div>
+                <div class="detail-label">Owner Name</div>
                 <div class="detail-value">${payment.ownerName || sub.ownerName}</div>
             </div>
             <div class="detail-item">
@@ -798,16 +816,36 @@ function renderAdminReceiptContent(payment, sub) {
                 <div class="detail-value">${payment.vehicleNumber || sub.vehicleNumber}</div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Assigned Slot</div>
+                <div class="detail-label">Vehicle Type</div>
+                <div class="detail-value">${sub.vehicleType || '4-Wheeler'}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Parking Slot</div>
                 <div class="detail-value" style="color: var(--primary); font-size: 1.1rem;">${payment.parkingSlot || sub.parkingSlot}</div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Plan</div>
+                <div class="detail-label">Monthly Plan</div>
                 <div class="detail-value">${payment.plan || sub.plan}</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Payment Method</div>
                 <div class="detail-value">${payment.paymentMethod || 'UPI'}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Payment Date</div>
+                <div class="detail-value">${window.storage.formatDateOnly(payment.paymentDate)}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Subscription Start</div>
+                <div class="detail-value">${window.storage.formatDateOnly(sub.startDate || payment.paymentDate)}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Subscription Expiry</div>
+                <div class="detail-value" style="color: var(--danger-text);">${window.storage.formatDateOnly(sub.endDate || '--')}</div>
+            </div>
+            <div class="detail-item full-width">
+                <div class="detail-label">Payment Status</div>
+                <div class="detail-value"><span class="badge badge-success">✓ Successful</span></div>
             </div>
             <div class="detail-item full-width" style="background: var(--primary-light); border-color: #bfdbfe;">
                 <div class="detail-label" style="color: var(--primary-dark);">Amount Paid</div>

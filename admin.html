@@ -152,8 +152,64 @@
                      TAB 1: OVERVIEW & LIVE METRICS
                      ================================================================ -->
                 <div id="tab-overview" class="admin-tab-content active">
-                    <!-- Metric Cards -->
-                    <div class="stats-grid">
+                    <!-- Metric Cards (9 Cards) -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Total Parking Slots</div>
+                                <div class="stat-value" id="adm-stat-total-slots">0</div>
+                            </div>
+                            <div class="stat-icon blue">🅿️</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Available Slots</div>
+                                <div class="stat-value" id="adm-stat-avail-slots" style="color: var(--success);">0</div>
+                            </div>
+                            <div class="stat-icon green">🟢</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Occupied Slots</div>
+                                <div class="stat-value" id="adm-stat-occ-slots" style="color: var(--danger);">0</div>
+                            </div>
+                            <div class="stat-icon red">🔴</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Total Vehicles</div>
+                                <div class="stat-value" id="adm-stat-total-veh">0</div>
+                            </div>
+                            <div class="stat-icon amber">🚗</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Active Subscriptions</div>
+                                <div class="stat-value" id="adm-stat-active-subs" style="color: var(--primary);">0</div>
+                            </div>
+                            <div class="stat-icon purple">📜</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Expired Subscriptions</div>
+                                <div class="stat-value" id="adm-stat-expired-subs" style="color: var(--danger);">0</div>
+                            </div>
+                            <div class="stat-icon red">⏳</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-info">
+                                <div class="stat-label">Total Payments</div>
+                                <div class="stat-value" id="adm-stat-total-payments">0</div>
+                            </div>
+                            <div class="stat-icon green">💳</div>
+                        </div>
+
                         <div class="stat-card">
                             <div class="stat-info">
                                 <div class="stat-label">Total Revenue</div>
@@ -164,26 +220,10 @@
 
                         <div class="stat-card">
                             <div class="stat-info">
-                                <div class="stat-label">Monthly Revenue</div>
+                                <div class="stat-label">This Month Revenue</div>
                                 <div class="stat-value" id="adm-stat-month-revenue" style="color: var(--success);">₹0</div>
                             </div>
                             <div class="stat-icon green">📈</div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-info">
-                                <div class="stat-label">Active Subscriptions</div>
-                                <div class="stat-value" id="adm-stat-active-subs">0</div>
-                            </div>
-                            <div class="stat-icon purple">📜</div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-info">
-                                <div class="stat-label">Occupied / Total Slots</div>
-                                <div class="stat-value" id="adm-stat-slots-occ">0 / 0</div>
-                            </div>
-                            <div class="stat-icon amber">🅿️</div>
                         </div>
                     </div>
 
